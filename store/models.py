@@ -7,6 +7,7 @@ Orders: Order → OrderItem
 from django.db import models
 from django.conf import settings
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.utils.text import slugify
 
 
 class Category(models.Model):
@@ -45,7 +46,7 @@ class Product(models.Model):
 
     STATUS_CHOICES = [
         ("Brand New", "Brand New"),
-        ("UK-Used", "UK-Used"),
+        ("Foreign Used", "Foreign Used"),
         ("Nigeria-Used", "Nigeria-Used"),
     ]
 
@@ -58,11 +59,13 @@ class Product(models.Model):
     # Identity
     slug = models.SlugField(unique=True)     # e.g. "iphone-15-pro-max" — used as public ID
     name = models.CharField(max_length=200)
+    series = models.CharField(max_length=100, blank=True, db_index=True)  # e.g. "iPhone 15", "Galaxy S22"
     category = models.ForeignKey(Category, related_name="products", on_delete=models.PROTECT)
     brand = models.ForeignKey(Brand, related_name="products", on_delete=models.PROTECT)
 
     # Visual
-    thumb = models.CharField(max_length=50, default="phone")  # icon name
+    image = models.ImageField(upload_to="products/", blank=True, null=True)
+    thumb = models.CharField(max_length=50, default="phone")  # icon name fallback
     tint = models.CharField(max_length=20, choices=TINT_CHOICES, default="blue")
 
     # Pricing
@@ -70,7 +73,7 @@ class Product(models.Model):
     old_price = models.PositiveIntegerField(null=True, blank=True)
 
     # Condition
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="UK-Used")
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="Foreign Used")
 
     # Ratings (denormalised for query speed)
     rating = models.DecimalField(max_digits=3, decimal_places=1, default=4.6)
@@ -96,6 +99,17 @@ class Product(models.Model):
 
     def __str__(self):
         return self.name
+
+    def save(self, *args, **kwargs):
+        if not self.slug:
+            base = slugify(self.name)
+            slug = base
+            n = 1
+            while Product.objects.filter(slug=slug).exclude(pk=self.pk).exists():
+                slug = f"{base}-{n}"
+                n += 1
+            self.slug = slug
+        super().save(*args, **kwargs)
 
     @property
     def sold_out(self):

@@ -6,7 +6,7 @@ from .models import Category, Brand, Product, ProductSpec, Review, Order, OrderI
 class BrandSerializer(serializers.ModelSerializer):
     class Meta:
         model = Brand
-        fields = ["slug", "name"]
+        fields = ["id", "slug", "name"]
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -14,7 +14,7 @@ class CategorySerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Category
-        fields = ["slug", "name", "icon", "blurb", "brands"]
+        fields = ["id", "slug", "name", "icon", "blurb", "brands"]
 
 
 class ProductSpecSerializer(serializers.ModelSerializer):
@@ -50,9 +50,9 @@ class ProductListSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
         fields = [
-            "id", "name",
+            "id", "name", "series",
             "category_slug", "brand_slug",
-            "thumb", "tint",
+            "image", "thumb", "tint",
             "price", "old_price", "save_amount",
             "status", "rating", "review_count",
             "is_featured", "badge",
@@ -76,7 +76,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
         fields = [
             "id", "name",
             "category_slug", "brand_slug",
-            "thumb", "tint",
+            "image", "thumb", "tint",
             "price", "old_price", "save_amount",
             "status", "rating", "review_count",
             "is_featured", "badge",
@@ -186,5 +186,61 @@ class OrderSerializer(serializers.ModelSerializer):
             "reference", "status",
             "subtotal", "delivery_fee", "total",
             "guest_name", "guest_email", "delivery_address",
+            "items", "created_at",
+        ]
+
+
+# ── Admin serializers ─────────────────────────────────────────────────────────
+
+class ProductWriteSerializer(serializers.ModelSerializer):
+    """Used by admin to create / update a product (no image — handled separately)."""
+
+    class Meta:
+        model = Product
+        fields = [
+            "name", "category", "brand",
+            "thumb", "tint",
+            "price", "old_price",
+            "status", "is_featured", "badge",
+            "is_one_time", "stock",
+            "description", "one_time_note",
+            "colors",
+        ]
+
+
+class AdminProductSerializer(serializers.ModelSerializer):
+    """Read-only admin list/detail — includes all fields."""
+    id = serializers.SlugField(source="slug", read_only=True)
+    category_slug = serializers.CharField(source="category.slug", read_only=True)
+    brand_slug = serializers.CharField(source="brand.slug", read_only=True)
+    specs = ProductSpecSerializer(many=True, read_only=True)
+    save_amount = serializers.ReadOnlyField()
+    sold_out = serializers.ReadOnlyField()
+
+    class Meta:
+        model = Product
+        fields = [
+            "id", "slug", "name",
+            "category", "category_slug", "brand", "brand_slug",
+            "image", "thumb", "tint",
+            "price", "old_price", "save_amount",
+            "status", "rating", "review_count",
+            "is_featured", "badge",
+            "is_one_time", "stock", "sold_out",
+            "description", "one_time_note",
+            "colors", "specs",
+            "created_at", "updated_at",
+        ]
+
+
+class AdminOrderSerializer(serializers.ModelSerializer):
+    items = OrderItemSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Order
+        fields = [
+            "id", "reference", "status",
+            "subtotal", "delivery_fee", "total",
+            "guest_name", "guest_email", "guest_phone", "delivery_address",
             "items", "created_at",
         ]
