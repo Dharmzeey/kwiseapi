@@ -169,15 +169,37 @@ class ReviewCreateView(GenericAPIView):
 
 # ── Orders ────────────────────────────────────────────────────────────────────
 
+class CartVerifyView(APIView):
+    """POST /api/cart/verify/ — return current DB prices for cart items."""
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        items = request.data if isinstance(request.data, list) else request.data.get("items", [])
+        result = []
+        for item in items:
+            try:
+                product = Product.objects.get(slug=item["product_id"])
+                result.append({
+                    "product_id": item["product_id"],
+                    "name": product.name,
+                    "quantity": int(item.get("quantity", 1)),
+                    "unit_price": product.price,
+                    "available": not product.sold_out,
+                })
+            except (Product.DoesNotExist, KeyError):
+                result.append({"product_id": item.get("product_id", ""), "available": False})
+        return Response(result)
+
+
 class OrderCreateView(GenericAPIView):
     """POST /api/orders/"""
     serializer_class = OrderCreateSerializer
-    permission_classes = [AllowAny]
+    permission_classes = [IsAuthenticated]
 
     def post(self, request):
         serializer = self.get_serializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
-        order = serializer.save(user=request.user if request.user.is_authenticated else None)
+        order = serializer.save()
         return Response(
             {"reference": order.reference, "total": order.total, "status": order.status},
             status=status.HTTP_201_CREATED,

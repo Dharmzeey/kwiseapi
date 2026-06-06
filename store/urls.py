@@ -7,6 +7,7 @@ from .views import (
     ProductDetailView,
     ProductRelatedView,
     ReviewCreateView,
+    CartVerifyView,
     OrderCreateView,
     OrderDetailView,
     MyOrderListView,
@@ -30,6 +31,9 @@ urlpatterns = [
     path("products/<str:id>/", ProductDetailView.as_view(), name="product-detail"),
     path("products/<str:id>/related/", ProductRelatedView.as_view(), name="product-related"),
     path("products/<str:id>/reviews/", ReviewCreateView.as_view(), name="product-review-create"),
+
+    # Cart
+    path("cart/verify/", CartVerifyView.as_view(), name="cart-verify"),
 
     # Orders
     path("orders/", OrderCreateView.as_view(), name="order-create"),

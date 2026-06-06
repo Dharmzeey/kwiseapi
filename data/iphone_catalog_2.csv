@@ -1,0 +1,137 @@
+model_name,capacity,uk_reseller_price_ngn,price,status,colors
+iPhone 6,16GB,40000,70000,Foreign Used,Space Gray|Silver|Gold
+iPhone 6,32GB,45000,75000,Foreign Used,Space Gray|Silver|Gold
+iPhone 6,64GB,50000,80000,Foreign Used,Space Gray|Silver|Gold
+iPhone 6,128GB,55000,85000,Foreign Used,Space Gray|Silver|Gold
+iPhone 6 Plus,16GB,45000,75000,Foreign Used,Space Gray|Silver|Gold
+iPhone 6 Plus,64GB,55000,85000,Foreign Used,Space Gray|Silver|Gold
+iPhone 6 Plus,128GB,60000,90000,Foreign Used,Space Gray|Silver|Gold
+iPhone 6s,16GB,50000,80000,Foreign Used,Space Gray|Silver|Gold|Rose Gold
+iPhone 6s,32GB,55000,85000,Foreign Used,Space Gray|Silver|Gold|Rose Gold
+iPhone 6s,64GB,60000,90000,Foreign Used,Space Gray|Silver|Gold|Rose Gold
+iPhone 6s,128GB,65000,95000,Foreign Used,Space Gray|Silver|Gold|Rose Gold
+iPhone 6s Plus,16GB,55000,85000,Foreign Used,Space Gray|Silver|Gold|Rose Gold
+iPhone 6s Plus,32GB,60000,90000,Foreign Used,Space Gray|Silver|Gold|Rose Gold
+iPhone 6s Plus,64GB,65000,95000,Foreign Used,Space Gray|Silver|Gold|Rose Gold
+iPhone 6s Plus,128GB,70000,100000,Foreign Used,Space Gray|Silver|Gold|Rose Gold
+iPhone 7,32GB,65000,95000,Foreign Used,Jet Black|Black|Silver|Gold|Rose Gold|Red
+iPhone 7,128GB,80000,110000,Foreign Used,Jet Black|Black|Silver|Gold|Rose Gold|Red
+iPhone 7,256GB,95000,125000,Foreign Used,Jet Black|Black|Silver|Gold|Rose Gold|Red
+iPhone 7 Plus,32GB,75000,105000,Foreign Used,Jet Black|Black|Silver|Gold|Rose Gold|Red
+iPhone 7 Plus,128GB,95000,125000,Foreign Used,Jet Black|Black|Silver|Gold|Rose Gold|Red
+iPhone 7 Plus,256GB,110000,140000,Foreign Used,Jet Black|Black|Silver|Gold|Rose Gold|Red
+iPhone 8,64GB,130000,160000,Foreign Used,Space Gray|Silver|Gold
+iPhone 8,128GB,145000,175000,Foreign Used,Space Gray|Silver|Gold
+iPhone 8,256GB,165000,195000,Foreign Used,Space Gray|Silver|Gold
+iPhone 8 Plus,64GB,155000,185000,Foreign Used,Space Gray|Silver|Gold
+iPhone 8 Plus,128GB,175000,205000,Foreign Used,Space Gray|Silver|Gold
+iPhone 8 Plus,256GB,195000,225000,Foreign Used,Space Gray|Silver|Gold
+iPhone X,64GB,175000,205000,Foreign Used,Space Gray|Silver
+iPhone X,256GB,200000,230000,Foreign Used,Space Gray|Silver
+iPhone XS,64GB,200000,230000,Foreign Used,Space Gray|Silver|Gold
+iPhone XS,256GB,235000,275000,Foreign Used,Space Gray|Silver|Gold
+iPhone XS,512GB,270000,310000,Foreign Used,Space Gray|Silver|Gold
+iPhone XS Max,64GB,225000,265000,Foreign Used,Space Gray|Silver|Gold
+iPhone XS Max,256GB,265000,305000,Foreign Used,Space Gray|Silver|Gold
+iPhone XS Max,512GB,305000,355000,Foreign Used,Space Gray|Silver|Gold
+iPhone XR,64GB,185000,215000,Foreign Used,Black|White|Blue|Yellow|Coral|Red
+iPhone XR,128GB,200000,230000,Foreign Used,Black|White|Blue|Yellow|Coral|Red
+iPhone XR,256GB,215000,255000,Foreign Used,Black|White|Blue|Yellow|Coral|Red
+iPhone 11,64GB,210000,250000,Foreign Used,Black|White|Green|Yellow|Purple|Red
+iPhone 11,128GB,235000,275000,Foreign Used,Black|White|Green|Yellow|Purple|Red
+iPhone 11,256GB,265000,305000,Foreign Used,Black|White|Green|Yellow|Purple|Red
+iPhone 11 Pro,64GB,270000,310000,Foreign Used,Space Gray|Silver|Gold|Midnight Green
+iPhone 11 Pro,256GB,300000,340000,Foreign Used,Space Gray|Silver|Gold|Midnight Green
+iPhone 11 Pro,512GB,335000,385000,Foreign Used,Space Gray|Silver|Gold|Midnight Green
+iPhone 11 Pro Max,64GB,315000,365000,Foreign Used,Space Gray|Silver|Gold|Midnight Green
+iPhone 11 Pro Max,256GB,350000,400000,Foreign Used,Space Gray|Silver|Gold|Midnight Green
+iPhone 11 Pro Max,512GB,390000,440000,Foreign Used,Space Gray|Silver|Gold|Midnight Green
+iPhone 12 mini,64GB,200000,230000,Foreign Used,Black|White|Red|Green|Blue|Purple
+iPhone 12 mini,128GB,240000,280000,Foreign Used,Black|White|Red|Green|Blue|Purple
+iPhone 12 mini,256GB,275000,315000,Foreign Used,Black|White|Red|Green|Blue|Purple
+iPhone 12,64GB,250000,290000,Foreign Used,Black|White|Red|Green|Blue|Purple
+iPhone 12,128GB,290000,330000,Foreign Used,Black|White|Red|Green|Blue|Purple
+iPhone 12,256GB,330000,380000,Foreign Used,Black|White|Red|Green|Blue|Purple
+iPhone 12 Pro,128GB,355000,405000,Foreign Used,Graphite|Silver|Gold|Pacific Blue
+iPhone 12 Pro,256GB,375000,425000,Foreign Used,Graphite|Silver|Gold|Pacific Blue
+iPhone 12 Pro,512GB,390000,440000,Foreign Used,Graphite|Silver|Gold|Pacific Blue
+iPhone 12 Pro Max,128GB,440000,490000,Foreign Used,Graphite|Silver|Gold|Pacific Blue
+iPhone 12 Pro Max,256GB,470000,520000,Foreign Used,Graphite|Silver|Gold|Pacific Blue
+iPhone 12 Pro Max,512GB,500000,550000,Foreign Used,Graphite|Silver|Gold|Pacific Blue
+iPhone 13 mini,128GB,345000,395000,Foreign Used,Midnight|Starlight|Red|Blue|Green|Pink
+iPhone 13 mini,256GB,385000,435000,Foreign Used,Midnight|Starlight|Red|Blue|Green|Pink
+iPhone 13 mini,512GB,425000,475000,Foreign Used,Midnight|Starlight|Red|Blue|Green|Pink
+iPhone 13,128GB,370000,420000,Foreign Used,Midnight|Starlight|Red|Blue|Green|Pink
+iPhone 13,256GB,410000,460000,Foreign Used,Midnight|Starlight|Red|Blue|Green|Pink
+iPhone 13,512GB,450000,500000,Foreign Used,Midnight|Starlight|Red|Blue|Green|Pink
+iPhone 13 Pro,128GB,480000,530000,Foreign Used,Graphite|Silver|Gold|Sierra Blue|Alpine Green
+iPhone 13 Pro,256GB,520000,570000,Foreign Used,Graphite|Silver|Gold|Sierra Blue|Alpine Green
+iPhone 13 Pro,512GB,565000,615000,Foreign Used,Graphite|Silver|Gold|Sierra Blue|Alpine Green
+iPhone 13 Pro,1TB,615000,665000,Foreign Used,Graphite|Silver|Gold|Sierra Blue|Alpine Green
+iPhone 13 Pro Max,128GB,560000,610000,Foreign Used,Graphite|Silver|Gold|Sierra Blue|Alpine Green
+iPhone 13 Pro Max,256GB,620000,670000,Foreign Used,Graphite|Silver|Gold|Sierra Blue|Alpine Green
+iPhone 13 Pro Max,512GB,680000,730000,Foreign Used,Graphite|Silver|Gold|Sierra Blue|Alpine Green
+iPhone 13 Pro Max,1TB,740000,820000,Foreign Used,Graphite|Silver|Gold|Sierra Blue|Alpine Green
+iPhone 14,128GB,460000,510000,Foreign Used,Midnight|Starlight|Red|Blue|Purple|Yellow
+iPhone 14,256GB,505000,555000,Foreign Used,Midnight|Starlight|Red|Blue|Purple|Yellow
+iPhone 14,512GB,555000,605000,Foreign Used,Midnight|Starlight|Red|Blue|Purple|Yellow
+iPhone 14 Plus,128GB,570000,620000,Foreign Used,Midnight|Starlight|Red|Blue|Purple|Yellow
+iPhone 14 Plus,256GB,615000,665000,Foreign Used,Midnight|Starlight|Red|Blue|Purple|Yellow
+iPhone 14 Plus,512GB,670000,720000,Foreign Used,Midnight|Starlight|Red|Blue|Purple|Yellow
+iPhone 14 Pro,128GB,660000,710000,Foreign Used,Space Black|Silver|Gold|Deep Purple
+iPhone 14 Pro,256GB,700000,750000,Foreign Used,Space Black|Silver|Gold|Deep Purple
+iPhone 14 Pro,512GB,760000,840000,Foreign Used,Space Black|Silver|Gold|Deep Purple
+iPhone 14 Pro,1TB,830000,910000,Foreign Used,Space Black|Silver|Gold|Deep Purple
+iPhone 14 Pro Max,128GB,740000,820000,Foreign Used,Space Black|Silver|Gold|Deep Purple
+iPhone 14 Pro Max,256GB,800000,880000,Foreign Used,Space Black|Silver|Gold|Deep Purple
+iPhone 14 Pro Max,512GB,870000,950000,Foreign Used,Space Black|Silver|Gold|Deep Purple
+iPhone 14 Pro Max,1TB,960000,1040000,Foreign Used,Space Black|Silver|Gold|Deep Purple
+iPhone 15,128GB,660000,710000,Brand New,Black|Blue|Green|Yellow|Pink
+iPhone 15,256GB,730000,810000,Brand New,Black|Blue|Green|Yellow|Pink
+iPhone 15,512GB,805000,885000,Brand New,Black|Blue|Green|Yellow|Pink
+iPhone 15 Plus,128GB,700000,750000,Brand New,Black|Blue|Green|Yellow|Pink
+iPhone 15 Plus,256GB,740000,820000,Brand New,Black|Blue|Green|Yellow|Pink
+iPhone 15 Plus,512GB,790000,870000,Brand New,Black|Blue|Green|Yellow|Pink
+iPhone 15 Pro,128GB,830000,910000,Brand New,Natural Titanium|Blue Titanium|White Titanium|Black Titanium
+iPhone 15 Pro,256GB,870000,950000,Brand New,Natural Titanium|Blue Titanium|White Titanium|Black Titanium
+iPhone 15 Pro,512GB,920000,1000000,Brand New,Natural Titanium|Blue Titanium|White Titanium|Black Titanium
+iPhone 15 Pro,1TB,1000000,1080000,Brand New,Natural Titanium|Blue Titanium|White Titanium|Black Titanium
+iPhone 15 Pro Max,256GB,950000,1030000,Brand New,Natural Titanium|Blue Titanium|White Titanium|Black Titanium
+iPhone 15 Pro Max,512GB,1050000,1130000,Brand New,Natural Titanium|Blue Titanium|White Titanium|Black Titanium
+iPhone 15 Pro Max,1TB,1170000,1260000,Brand New,Natural Titanium|Blue Titanium|White Titanium|Black Titanium
+iPhone 16,128GB,820000,900000,Brand New,Black|White|Ultramarine|Teal|Pink
+iPhone 16,256GB,905000,985000,Brand New,Black|White|Ultramarine|Teal|Pink
+iPhone 16,512GB,995000,1075000,Brand New,Black|White|Ultramarine|Teal|Pink
+iPhone 16 Plus,128GB,870000,950000,Brand New,Black|White|Ultramarine|Teal|Pink
+iPhone 16 Plus,256GB,960000,1040000,Brand New,Black|White|Ultramarine|Teal|Pink
+iPhone 16 Plus,512GB,1050000,1130000,Brand New,Black|White|Ultramarine|Teal|Pink
+iPhone 16 Pro,128GB,955000,1035000,Brand New,Black Titanium|White Titanium|Natural Titanium|Desert Titanium
+iPhone 16 Pro,256GB,1060000,1145000,Brand New,Black Titanium|White Titanium|Natural Titanium|Desert Titanium
+iPhone 16 Pro,512GB,1175000,1265000,Brand New,Black Titanium|White Titanium|Natural Titanium|Desert Titanium
+iPhone 16 Pro,1TB,1300000,1395000,Brand New,Black Titanium|White Titanium|Natural Titanium|Desert Titanium
+iPhone 16 Pro Max,256GB,1260000,1355000,Brand New,Black Titanium|White Titanium|Natural Titanium|Desert Titanium
+iPhone 16 Pro Max,512GB,1390000,1490000,Brand New,Black Titanium|White Titanium|Natural Titanium|Desert Titanium
+iPhone 16 Pro Max,1TB,1560000,1670000,Brand New,Black Titanium|White Titanium|Natural Titanium|Desert Titanium
+iPhone 17,128GB,860000,940000,Brand New,Black|White|Blue|Green|Pink
+iPhone 17,256GB,950000,1030000,Brand New,Black|White|Blue|Green|Pink
+iPhone 17,512GB,1045000,1125000,Brand New,Black|White|Blue|Green|Pink
+iPhone 17 Air,128GB,905000,985000,Brand New,Black|White|Blue|Green|Pink
+iPhone 17 Air,256GB,1000000,1080000,Brand New,Black|White|Blue|Green|Pink
+iPhone 17 Air,512GB,1105000,1190000,Brand New,Black|White|Blue|Green|Pink
+iPhone 17 Pro,128GB,1055000,1140000,Brand New,Black Titanium|White Titanium|Natural Titanium|Desert Titanium
+iPhone 17 Pro,256GB,1165000,1255000,Brand New,Black Titanium|White Titanium|Natural Titanium|Desert Titanium
+iPhone 17 Pro,512GB,1295000,1390000,Brand New,Black Titanium|White Titanium|Natural Titanium|Desert Titanium
+iPhone 17 Pro,1TB,1440000,1540000,Brand New,Black Titanium|White Titanium|Natural Titanium|Desert Titanium
+iPhone 17 Pro Max,256GB,1210000,1300000,Brand New,Black Titanium|White Titanium|Natural Titanium|Desert Titanium
+iPhone 17 Pro Max,512GB,1345000,1440000,Brand New,Black Titanium|White Titanium|Natural Titanium|Desert Titanium
+iPhone 17 Pro Max,1TB,1510000,1615000,Brand New,Black Titanium|White Titanium|Natural Titanium|Desert Titanium
+iPhone 17 Pro Max,2TB,1690000,1805000,Brand New,Black Titanium|White Titanium|Natural Titanium|Desert Titanium
+iPhone SE (1st gen),16GB,40000,70000,Foreign Used,Space Gray|Silver|Gold|Rose Gold
+iPhone SE (1st gen),32GB,45000,75000,Foreign Used,Space Gray|Silver|Gold|Rose Gold
+iPhone SE (1st gen),64GB,50000,80000,Foreign Used,Space Gray|Silver|Gold|Rose Gold
+iPhone SE (2nd gen),64GB,165000,195000,Foreign Used,Black|White|Red
+iPhone SE (2nd gen),128GB,190000,220000,Foreign Used,Black|White|Red
+iPhone SE (2nd gen),256GB,220000,260000,Foreign Used,Black|White|Red
+iPhone SE (3rd gen),64GB,175000,205000,Brand New,Midnight|Starlight|Red
+iPhone SE (3rd gen),128GB,200000,230000,Brand New,Midnight|Starlight|Red
+iPhone SE (3rd gen),256GB,225000,265000,Brand New,Midnight|Starlight|Red

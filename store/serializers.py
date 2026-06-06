@@ -149,12 +149,18 @@ class OrderCreateSerializer(serializers.Serializer):
         total = subtotal + delivery_fee
         ref = "KW-" + "".join(random.choices(string.digits, k=6))
 
+        user = request.user if request and request.user.is_authenticated else None
+        # Use profile data when authenticated, fall back to guest fields
+        guest_name = f"{user.first_name} {user.last_name}".strip() if user else validated_data.get("guest_name", "")
+        guest_email = user.email if user else validated_data.get("guest_email", "")
+        guest_phone = getattr(user, "phone", "") or validated_data.get("guest_phone", "")
+
         order = Order.objects.create(
             reference=ref,
-            user=request.user if request and request.user.is_authenticated else None,
-            guest_name=validated_data.get("guest_name", ""),
-            guest_email=validated_data.get("guest_email", ""),
-            guest_phone=validated_data.get("guest_phone", ""),
+            user=user,
+            guest_name=guest_name,
+            guest_email=guest_email,
+            guest_phone=guest_phone,
             delivery_address=validated_data.get("delivery_address", ""),
             subtotal=subtotal,
             delivery_fee=delivery_fee,

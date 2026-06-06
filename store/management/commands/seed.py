@@ -3,17 +3,117 @@ python manage.py seed
 
 Populates the database with the initial Kwise World catalog.
 Safe to run multiple times — uses update_or_create.
+
+iPhone variants are generated automatically from iphone_catalog_2.csv.
+Samsung variants are generated automatically from samsung_catalog.csv.
+Laptops, accessories, and one-time offers are defined inline.
 """
+import csv
+import os
+
 from django.core.management.base import BaseCommand
+from django.utils.text import slugify
+
 from store.models import Category, Brand, Product, ProductSpec
 
+
+# ── iPhone model specs lookup ─────────────────────────────────────────────────
+
+IPHONE_SPECS = {
+    "iPhone 6":          {"series": "iPhone 6",  "chip": "A8",          "display": '4.7" Retina IPS LCD',                        "camera": "8MP",                              "battery": "1810mAh", "rating": 4.0, "reviews": 38,  "featured": False, "badge": ""},
+    "iPhone 6 Plus":     {"series": "iPhone 6",  "chip": "A8",          "display": '5.5" Retina IPS LCD',                        "camera": "8MP OIS",                          "battery": "2915mAh", "rating": 4.0, "reviews": 29,  "featured": False, "badge": ""},
+    "iPhone 6s":         {"series": "iPhone 6s", "chip": "A9",          "display": '4.7" Retina IPS LCD',                        "camera": "12MP",                             "battery": "1715mAh", "rating": 4.1, "reviews": 44,  "featured": False, "badge": ""},
+    "iPhone 6s Plus":    {"series": "iPhone 6s", "chip": "A9",          "display": '5.5" Retina IPS LCD',                        "camera": "12MP OIS",                         "battery": "2750mAh", "rating": 4.1, "reviews": 33,  "featured": False, "badge": ""},
+    "iPhone 7":          {"series": "iPhone 7",  "chip": "A10 Fusion",  "display": '4.7" Retina IPS LCD',                        "camera": "12MP",                             "battery": "1960mAh", "rating": 4.2, "reviews": 67,  "featured": False, "badge": ""},
+    "iPhone 7 Plus":     {"series": "iPhone 7",  "chip": "A10 Fusion",  "display": '5.5" Retina IPS LCD',                        "camera": "12MP Dual OIS",                    "battery": "2900mAh", "rating": 4.3, "reviews": 58,  "featured": False, "badge": ""},
+    "iPhone 8":          {"series": "iPhone 8",  "chip": "A11 Bionic",  "display": '4.7" Retina IPS LCD',                        "camera": "12MP",                             "battery": "1821mAh", "rating": 4.3, "reviews": 72,  "featured": False, "badge": ""},
+    "iPhone 8 Plus":     {"series": "iPhone 8",  "chip": "A11 Bionic",  "display": '5.5" Retina IPS LCD',                        "camera": "12MP Dual OIS",                    "battery": "2691mAh", "rating": 4.4, "reviews": 61,  "featured": False, "badge": ""},
+    "iPhone X":          {"series": "iPhone X",  "chip": "A11 Bionic",  "display": '5.8" Super Retina OLED',                     "camera": "12MP Dual OIS",                    "battery": "2716mAh", "rating": 4.4, "reviews": 83,  "featured": False, "badge": ""},
+    "iPhone XS":         {"series": "iPhone XS", "chip": "A12 Bionic",  "display": '5.8" Super Retina XDR OLED',                 "camera": "12MP Dual OIS",                    "battery": "2658mAh", "rating": 4.4, "reviews": 55,  "featured": False, "badge": ""},
+    "iPhone XS Max":     {"series": "iPhone XS", "chip": "A12 Bionic",  "display": '6.5" Super Retina XDR OLED',                 "camera": "12MP Dual OIS",                    "battery": "3174mAh", "rating": 4.5, "reviews": 49,  "featured": False, "badge": ""},
+    "iPhone XR":         {"series": "iPhone XR", "chip": "A12 Bionic",  "display": '6.1" Liquid Retina LCD',                     "camera": "12MP",                             "battery": "2942mAh", "rating": 4.4, "reviews": 91,  "featured": False, "badge": ""},
+    "iPhone 11":         {"series": "iPhone 11", "chip": "A13 Bionic",  "display": '6.1" Liquid Retina LCD',                     "camera": "12MP Dual",                        "battery": "3110mAh", "rating": 4.5, "reviews": 112, "featured": False, "badge": ""},
+    "iPhone 11 Pro":     {"series": "iPhone 11", "chip": "A13 Bionic",  "display": '5.8" Super Retina XDR OLED',                 "camera": "12MP Triple",                      "battery": "3046mAh", "rating": 4.6, "reviews": 78,  "featured": False, "badge": ""},
+    "iPhone 11 Pro Max": {"series": "iPhone 11", "chip": "A13 Bionic",  "display": '6.5" Super Retina XDR OLED',                 "camera": "12MP Triple",                      "battery": "3969mAh", "rating": 4.6, "reviews": 65,  "featured": False, "badge": ""},
+    "iPhone 12 mini":    {"series": "iPhone 12", "chip": "A14 Bionic",  "display": '5.4" Super Retina XDR OLED',                 "camera": "12MP Dual",                        "battery": "2227mAh", "rating": 4.4, "reviews": 54,  "featured": False, "badge": ""},
+    "iPhone 12":         {"series": "iPhone 12", "chip": "A14 Bionic",  "display": '6.1" Super Retina XDR OLED',                 "camera": "12MP Dual",                        "battery": "2815mAh", "rating": 4.5, "reviews": 98,  "featured": False, "badge": ""},
+    "iPhone 12 Pro":     {"series": "iPhone 12", "chip": "A14 Bionic",  "display": '6.1" Super Retina XDR OLED',                 "camera": "12MP Triple + LiDAR",              "battery": "2815mAh", "rating": 4.6, "reviews": 74,  "featured": False, "badge": ""},
+    "iPhone 12 Pro Max": {"series": "iPhone 12", "chip": "A14 Bionic",  "display": '6.7" Super Retina XDR OLED',                 "camera": "12MP Triple + Sensor-shift OIS",   "battery": "3687mAh", "rating": 4.6, "reviews": 63,  "featured": False, "badge": ""},
+    "iPhone 13 mini":    {"series": "iPhone 13", "chip": "A15 Bionic",  "display": '5.4" Super Retina XDR OLED',                 "camera": "12MP Dual",                        "battery": "2438mAh", "rating": 4.5, "reviews": 47,  "featured": False, "badge": ""},
+    "iPhone 13":         {"series": "iPhone 13", "chip": "A15 Bionic",  "display": '6.1" Super Retina XDR OLED',                 "camera": "12MP Dual + Sensor-shift OIS",     "battery": "3227mAh", "rating": 4.7, "reviews": 134, "featured": True,  "badge": "Best Seller"},
+    "iPhone 13 Pro":     {"series": "iPhone 13", "chip": "A15 Bionic",  "display": '6.1" ProMotion Super Retina XDR OLED',       "camera": "12MP Triple + LiDAR",              "battery": "3095mAh", "rating": 4.7, "reviews": 89,  "featured": False, "badge": ""},
+    "iPhone 13 Pro Max": {"series": "iPhone 13", "chip": "A15 Bionic",  "display": '6.7" ProMotion Super Retina XDR OLED',       "camera": "12MP Triple + LiDAR",              "battery": "4352mAh", "rating": 4.8, "reviews": 96,  "featured": True,  "badge": "Top Rated"},
+    "iPhone 14":         {"series": "iPhone 14", "chip": "A15 Bionic",  "display": '6.1" Super Retina XDR OLED',                 "camera": "12MP Dual + Photonic Engine",      "battery": "3279mAh", "rating": 4.6, "reviews": 77,  "featured": False, "badge": ""},
+    "iPhone 14 Plus":    {"series": "iPhone 14", "chip": "A15 Bionic",  "display": '6.7" Super Retina XDR OLED',                 "camera": "12MP Dual + Photonic Engine",      "battery": "4323mAh", "rating": 4.6, "reviews": 52,  "featured": False, "badge": ""},
+    "iPhone 14 Pro":     {"series": "iPhone 14", "chip": "A16 Bionic",  "display": '6.1" ProMotion Always-On Super Retina XDR',  "camera": "48MP Triple + LiDAR",              "battery": "3200mAh", "rating": 4.8, "reviews": 103, "featured": True,  "badge": "Best Seller"},
+    "iPhone 14 Pro Max": {"series": "iPhone 14", "chip": "A16 Bionic",  "display": '6.7" ProMotion Always-On Super Retina XDR',  "camera": "48MP Triple + LiDAR",              "battery": "4323mAh", "rating": 4.9, "reviews": 118, "featured": True,  "badge": "Top Rated"},
+    "iPhone 15":         {"series": "iPhone 15", "chip": "A16 Bionic",  "display": '6.1" Super Retina XDR Dynamic Island OLED',  "camera": "48MP Dual + Photonic Engine",      "battery": "3349mAh", "rating": 4.7, "reviews": 89,  "featured": False, "badge": ""},
+    "iPhone 15 Plus":    {"series": "iPhone 15", "chip": "A16 Bionic",  "display": '6.7" Super Retina XDR Dynamic Island OLED',  "camera": "48MP Dual + Photonic Engine",      "battery": "4383mAh", "rating": 4.7, "reviews": 61,  "featured": False, "badge": ""},
+    "iPhone 15 Pro":     {"series": "iPhone 15", "chip": "A17 Pro",     "display": '6.1" ProMotion Super Retina XDR OLED',       "camera": "48MP Triple + 3x Tele",            "battery": "3274mAh", "rating": 4.8, "reviews": 94,  "featured": True,  "badge": ""},
+    "iPhone 15 Pro Max": {"series": "iPhone 15", "chip": "A17 Pro",     "display": '6.7" ProMotion Super Retina XDR OLED',       "camera": "48MP Triple + 5x Tele",            "battery": "4422mAh", "rating": 4.9, "reviews": 147, "featured": True,  "badge": "Best Seller"},
+    "iPhone 16":         {"series": "iPhone 16", "chip": "A18",         "display": '6.1" Super Retina XDR Dynamic Island OLED',  "camera": "48MP Dual + Camera Control",       "battery": "3561mAh", "rating": 4.7, "reviews": 82,  "featured": True,  "badge": ""},
+    "iPhone 16 Plus":    {"series": "iPhone 16", "chip": "A18",         "display": '6.7" Super Retina XDR Dynamic Island OLED',  "camera": "48MP Dual + Camera Control",       "battery": "4674mAh", "rating": 4.7, "reviews": 55,  "featured": False, "badge": ""},
+    "iPhone 16 Pro":     {"series": "iPhone 16", "chip": "A18 Pro",     "display": '6.3" ProMotion Always-On Super Retina XDR',  "camera": "48MP Triple + 5x Tele + Camera Control", "battery": "3582mAh", "rating": 4.8, "reviews": 109, "featured": True,  "badge": "Best Seller"},
+    "iPhone 16 Pro Max": {"series": "iPhone 16", "chip": "A18 Pro",     "display": '6.9" ProMotion Always-On Super Retina XDR',  "camera": "48MP Triple + 5x Tele + Camera Control", "battery": "4685mAh", "rating": 4.9, "reviews": 138, "featured": True,  "badge": "Top Rated"},
+    "iPhone 17":         {"series": "iPhone 17", "chip": "A19",         "display": '6.1" ProMotion Super Retina XDR OLED',       "camera": "48MP Dual + Camera Control",       "battery": "3600mAh", "rating": 4.7, "reviews": 41,  "featured": True,  "badge": "New"},
+    "iPhone 17 Air":     {"series": "iPhone 17", "chip": "A19",         "display": '6.6" ProMotion Super Retina XDR OLED',       "camera": "48MP + Camera Control",            "battery": "2800mAh", "rating": 4.6, "reviews": 28,  "featured": True,  "badge": "New"},
+    "iPhone 17 Pro":     {"series": "iPhone 17", "chip": "A19 Pro",     "display": '6.3" ProMotion Always-On Super Retina XDR',  "camera": "48MP Triple + Periscope Tele + Camera Control", "battery": "3700mAh", "rating": 4.9, "reviews": 63,  "featured": True,  "badge": "New"},
+    "iPhone 17 Pro Max": {"series": "iPhone 17", "chip": "A19 Pro",     "display": '6.9" ProMotion Always-On Super Retina XDR',  "camera": "48MP Triple + Periscope Tele + Camera Control", "battery": "4800mAh", "rating": 4.9, "reviews": 74,  "featured": True,  "badge": "New"},
+    "iPhone SE (1st gen)": {"series": "iPhone SE", "chip": "A9",        "display": '4.0" Retina IPS LCD',                        "camera": "12MP",                             "battery": "1624mAh", "rating": 4.0, "reviews": 22,  "featured": False, "badge": ""},
+    "iPhone SE (2nd gen)": {"series": "iPhone SE", "chip": "A13 Bionic","display": '4.7" Retina IPS LCD',                        "camera": "12MP",                             "battery": "1821mAh", "rating": 4.3, "reviews": 36,  "featured": False, "badge": ""},
+    "iPhone SE (3rd gen)": {"series": "iPhone SE", "chip": "A15 Bionic","display": '4.7" Retina IPS LCD',                        "camera": "12MP",                             "battery": "2018mAh", "rating": 4.4, "reviews": 31,  "featured": False, "badge": ""},
+}
+
+
+# ── Samsung model specs lookup ────────────────────────────────────────────────
+
+SAMSUNG_SPECS = {
+    "Galaxy S9+":      {"series": "Galaxy S9",  "chip": "Exynos 9810",        "display": '6.2" Quad HD+ Super AMOLED',    "camera": "12MP Dual OIS",       "battery": "3500mAh", "rating": 4.2, "reviews": 34,  "featured": False, "badge": ""},
+    "Galaxy S10+":     {"series": "Galaxy S10", "chip": "Exynos 9820",        "display": '6.4" Quad HD+ Dynamic AMOLED', "camera": "12MP Triple",         "battery": "4100mAh", "rating": 4.4, "reviews": 52,  "featured": False, "badge": ""},
+    "Galaxy S22":      {"series": "Galaxy S22", "chip": "Snapdragon 8 Gen 1", "display": '6.1" FHD+ Dynamic AMOLED 2X',  "camera": "50MP Triple",         "battery": "3700mAh", "rating": 4.5, "reviews": 61,  "featured": False, "badge": ""},
+    "Galaxy S22 Ultra":{"series": "Galaxy S22", "chip": "Snapdragon 8 Gen 1", "display": '6.8" QHD+ Dynamic AMOLED 2X',  "camera": "108MP Quad + S Pen",  "battery": "5000mAh", "rating": 4.7, "reviews": 78,  "featured": True,  "badge": "Best Seller"},
+    "Galaxy S23 Ultra":{"series": "Galaxy S23", "chip": "Snapdragon 8 Gen 2", "display": '6.8" QHD+ Dynamic AMOLED 2X',  "camera": "200MP Quad + S Pen",  "battery": "5000mAh", "rating": 4.8, "reviews": 93,  "featured": True,  "badge": "Top Rated"},
+    "Galaxy A35":      {"series": "Galaxy A",   "chip": "Exynos 1380",        "display": '6.6" FHD+ Super AMOLED',       "camera": "50MP Triple",         "battery": "5000mAh", "rating": 4.4, "reviews": 41,  "featured": False, "badge": ""},
+    "Galaxy A55":      {"series": "Galaxy A",   "chip": "Exynos 1480",        "display": '6.6" FHD+ Super AMOLED',       "camera": "50MP Triple",         "battery": "5000mAh", "rating": 4.5, "reviews": 55,  "featured": False, "badge": ""},
+    "Galaxy S24":      {"series": "Galaxy S24", "chip": "Snapdragon 8 Gen 3", "display": '6.2" FHD+ Dynamic AMOLED 2X',  "camera": "50MP Triple",         "battery": "4000mAh", "rating": 4.7, "reviews": 67,  "featured": True,  "badge": ""},
+    "Galaxy S24+":     {"series": "Galaxy S24", "chip": "Snapdragon 8 Gen 3", "display": '6.7" QHD+ Dynamic AMOLED 2X',  "camera": "50MP Triple",         "battery": "4900mAh", "rating": 4.7, "reviews": 48,  "featured": False, "badge": ""},
+    "Galaxy S24 Ultra":{"series": "Galaxy S24", "chip": "Snapdragon 8 Gen 3", "display": '6.8" QHD+ Dynamic AMOLED 2X',  "camera": "200MP Quad + S Pen",  "battery": "5000mAh", "rating": 4.9, "reviews": 112, "featured": True,  "badge": "Best Seller"},
+    "Galaxy S25":      {"series": "Galaxy S25", "chip": "Snapdragon 8 Elite", "display": '6.2" FHD+ Dynamic AMOLED 2X',  "camera": "50MP Triple",         "battery": "4000mAh", "rating": 4.7, "reviews": 44,  "featured": True,  "badge": "New"},
+    "Galaxy S25+":     {"series": "Galaxy S25", "chip": "Snapdragon 8 Elite", "display": '6.7" QHD+ Dynamic AMOLED 2X',  "camera": "50MP Triple",         "battery": "4900mAh", "rating": 4.8, "reviews": 32,  "featured": False, "badge": "New"},
+    "Galaxy S25 Ultra":{"series": "Galaxy S25", "chip": "Snapdragon 8 Elite", "display": '6.9" QHD+ Dynamic AMOLED 2X',  "camera": "200MP Quad + S Pen",  "battery": "5000mAh", "rating": 4.9, "reviews": 87,  "featured": True,  "badge": "New"},
+    "Galaxy Z Flip7":  {"series": "Galaxy Z Flip", "chip": "Snapdragon 8 Elite", "display": '6.7" FHD+ Foldable AMOLED', "camera": "50MP Dual",           "battery": "4000mAh", "rating": 4.6, "reviews": 29,  "featured": True,  "badge": "New"},
+    "Galaxy Z Fold7":  {"series": "Galaxy Z Fold", "chip": "Snapdragon 8 Elite", "display": '7.9" QHD+ Foldable AMOLED', "camera": "200MP Triple",        "battery": "4400mAh", "rating": 4.8, "reviews": 21,  "featured": True,  "badge": "New"},
+}
+
+
+# ── Description helpers ───────────────────────────────────────────────────────
+
+def _iphone_description(model_name: str, capacity: str, colors: list, specs: dict, status: str) -> str:
+    condition = "Brand new, sealed." if status == "Brand New" else "Clean Foreign Used — fully tested."
+    color_str = " · ".join(colors[:4]) + (" + more" if len(colors) > 4 else "")
+    return (
+        f"{model_name} {capacity}. {specs['chip']} chip, {specs['display']} display, "
+        f"{specs['camera']} camera. {condition} Colors: {color_str}."
+    )
+
+
+def _samsung_description(model_name: str, capacity: str, colors: list, specs: dict, status: str) -> str:
+    condition = "Brand new, sealed." if status == "Brand New" else "Clean Foreign Used — fully tested."
+    color_str = " · ".join(colors[:4]) + (" + more" if len(colors) > 4 else "")
+    return (
+        f"{model_name} {capacity}. {specs['chip']} processor, {specs['display']} display, "
+        f"{specs['camera']} camera. {condition} Colors: {color_str}."
+    )
+
+
+# ── Catalog data ──────────────────────────────────────────────────────────────
 
 CATEGORIES = [
     {
         "slug": "phones", "name": "Phones", "icon": "phone", "order": 1,
-        "blurb": "iPhone & Samsung — brand new and clean UK-used.",
+        "blurb": "iPhone & Samsung — brand new and clean Foreign Used.",
         "brands": [
-            {"slug": "iphone", "name": "iPhone"},
+            {"slug": "iphone",  "name": "iPhone"},
             {"slug": "samsung", "name": "Samsung"},
         ],
     },
@@ -21,86 +121,796 @@ CATEGORIES = [
         "slug": "laptops", "name": "Laptops", "icon": "laptop", "order": 2,
         "blurb": "HP, Lenovo, Apple & Dell — top models for work, study and play.",
         "brands": [
-            {"slug": "hp", "name": "HP"},
+            {"slug": "hp",     "name": "HP"},
             {"slug": "lenovo", "name": "Lenovo"},
-            {"slug": "apple", "name": "Apple"},
-            {"slug": "dell", "name": "Dell"},
+            {"slug": "apple",  "name": "Apple"},
+            {"slug": "dell",   "name": "Dell"},
         ],
     },
     {
         "slug": "accessories", "name": "Accessories", "icon": "charger", "order": 3,
-        "blurb": "Chargers, power banks, cables, pouches & screen guards.",
+        "blurb": "Chargers, power banks, cables, pouches, screen guards, laptop accessories, audio & gadgets.",
         "brands": [
-            {"slug": "chargers", "name": "Chargers"},
-            {"slug": "power-banks", "name": "Power Banks"},
-            {"slug": "cables", "name": "Cables"},
-            {"slug": "pouches", "name": "Pouches & Cases"},
-            {"slug": "screen-guards", "name": "Screen Guards"},
-        ],
-    },
-    {
-        "slug": "laptop-accessories", "name": "Laptop Accessories", "icon": "battery", "order": 4,
-        "blurb": "Batteries, adapters, cooling pads & sleeves.",
-        "brands": [
-            {"slug": "laptop-batteries", "name": "Batteries"},
-            {"slug": "laptop-chargers", "name": "Adapters"},
-            {"slug": "laptop-other", "name": "Cooling & Sleeves"},
+            {"slug": "chargers",        "name": "Chargers"},
+            {"slug": "power-banks",     "name": "Power Banks"},
+            {"slug": "cables",          "name": "Cables"},
+            {"slug": "pouches",         "name": "Pouches & Cases"},
+            {"slug": "screen-guards",   "name": "Screen Guards"},
+            {"slug": "laptop-batteries","name": "Laptop Batteries"},
+            {"slug": "laptop-chargers", "name": "Laptop Adapters"},
+            {"slug": "laptop-other",    "name": "Cooling & Sleeves"},
+            {"slug": "audio",           "name": "Audio"},
+            {"slug": "gadgets",         "name": "Gadgets"},
         ],
     },
 ]
 
 PRODUCTS = [
-    {"id": "iphone-15-pro-max", "name": "iPhone 15 Pro Max", "cat": "phones", "brand": "iphone", "thumb": "phone", "tint": "blue", "price": 1850000, "status": "Brand New", "rating": 4.9, "review_count": 128, "badge": "Best Seller", "is_featured": True, "colors": ["Natural Titanium", "Blue Titanium", "Black Titanium"], "description": "The flagship. Titanium build, A17 Pro chip and a 5x telephoto camera. Sealed, with full warranty.", "specs": {"Storage": "256GB", "Display": "6.7\" Super Retina XDR", "Chip": "A17 Pro", "Camera": "48MP Triple", "Battery": "4441mAh"}, "series": "iPhone 15"},
-    {"id": "iphone-15", "name": "iPhone 15", "cat": "phones", "brand": "iphone", "thumb": "phone", "tint": "blue", "price": 1350000, "status": "Brand New", "rating": 4.8, "review_count": 74, "is_featured": True, "colors": ["Black", "Blue", "Pink", "Green"], "description": "Dynamic Island, USB-C and a 48MP main camera in a lighter, friendlier package.", "specs": {"Storage": "128GB", "Display": "6.1\" Super Retina XDR", "Chip": "A16 Bionic", "Camera": "48MP Dual"}, "series": "iPhone 15"},
-    {"id": "iphone-14-pro", "name": "iPhone 14 Pro", "cat": "phones", "brand": "iphone", "thumb": "phone", "tint": "blue", "price": 950000, "old_price": 1100000, "status": "Foreign Used", "rating": 4.7, "review_count": 56, "description": "Clean UK-used Pro. Battery health 89%+, no scratches, fully tested.", "specs": {"Storage": "256GB", "Display": "6.1\" ProMotion", "Chip": "A16 Bionic", "Camera": "48MP Triple"}, "series": "iPhone 14"},
-    {"id": "iphone-13", "name": "iPhone 13", "cat": "phones", "brand": "iphone", "thumb": "phone", "tint": "blue", "price": 620000, "status": "Foreign Used", "rating": 4.6, "review_count": 91, "description": "The everyday favourite. Excellent UK-used condition, great battery.", "specs": {"Storage": "128GB", "Display": "6.1\" Super Retina XDR", "Chip": "A15 Bionic", "Camera": "12MP Dual"}, "series": "iPhone 13"},
-    {"id": "iphone-12", "name": "iPhone 12", "cat": "phones", "brand": "iphone", "thumb": "phone", "tint": "blue", "price": 470000, "status": "Foreign Used", "rating": 4.5, "review_count": 63, "description": "Still mighty. 5G, flat edges, OLED display. Tested and certified.", "specs": {"Storage": "128GB", "Display": "6.1\" Super Retina XDR", "Chip": "A14 Bionic", "Camera": "12MP Dual"}, "series": "iPhone 12"},
-    {"id": "iphone-11", "name": "iPhone 11", "cat": "phones", "brand": "iphone", "thumb": "phone", "tint": "blue", "price": 330000, "status": "Foreign Used", "rating": 4.4, "review_count": 110, "description": "The smart-budget pick. Reliable, clean UK-used units.", "specs": {"Storage": "64GB", "Display": "6.1\" Liquid Retina", "Chip": "A13 Bionic", "Camera": "12MP Dual"}, "series": "iPhone 11"},
-    {"id": "galaxy-s24-ultra", "name": "Galaxy S24 Ultra", "cat": "phones", "brand": "samsung", "thumb": "phone", "tint": "indigo", "price": 1550000, "status": "Brand New", "rating": 4.9, "review_count": 88, "badge": "Best Seller", "is_featured": True, "colors": ["Titanium Gray", "Titanium Black", "Titanium Violet"], "description": "Built-in S Pen, 200MP camera and Galaxy AI. The Android flagship to beat.", "specs": {"Storage": "256GB", "Display": "6.8\" QHD+ AMOLED", "Chip": "Snapdragon 8 Gen 3", "Camera": "200MP Quad", "SPen": "Built-in"}, "series": "Galaxy S24"},
-    {"id": "galaxy-s23", "name": "Galaxy S23", "cat": "phones", "brand": "samsung", "thumb": "phone", "tint": "indigo", "price": 980000, "status": "Brand New", "rating": 4.7, "review_count": 42, "is_featured": True, "colors": ["Phantom Black", "Cream", "Green"], "description": "Compact flagship power with all-day battery and a brilliant display.", "specs": {"Storage": "256GB", "Display": "6.1\" FHD+ AMOLED", "Chip": "Snapdragon 8 Gen 2", "Camera": "50MP Triple"}, "series": "Galaxy S23"},
-    {"id": "galaxy-z-flip5", "name": "Galaxy Z Flip5", "cat": "phones", "brand": "samsung", "thumb": "phone", "tint": "indigo", "price": 1150000, "status": "Brand New", "rating": 4.6, "review_count": 29, "colors": ["Mint", "Graphite", "Lavender"], "description": "Pocketable, foldable, fun. A flagship that folds to half the size.", "specs": {"Storage": "256GB", "Display": "6.7\" Foldable AMOLED", "Chip": "Snapdragon 8 Gen 2", "Cover": "3.4\" Flex Window"}, "series": "Galaxy Z Flip"},
-    {"id": "galaxy-a55", "name": "Galaxy A55", "cat": "phones", "brand": "samsung", "thumb": "phone", "tint": "indigo", "price": 520000, "status": "Brand New", "rating": 4.5, "review_count": 37, "description": "Premium mid-ranger: metal frame, big AMOLED, dependable battery.", "specs": {"Storage": "128GB", "Display": "6.6\" Super AMOLED", "Chip": "Exynos 1480", "Camera": "50MP Triple"}, "series": "Galaxy A"},
-    {"id": "galaxy-s22", "name": "Galaxy S22", "cat": "phones", "brand": "samsung", "thumb": "phone", "tint": "indigo", "price": 560000, "status": "Foreign Used", "rating": 4.5, "review_count": 51, "description": "Clean UK-used flagship at a smart price. Fully tested.", "specs": {"Storage": "128GB", "Display": "6.1\" AMOLED", "Chip": "Snapdragon 8 Gen 1", "Camera": "50MP Triple"}, "series": "Galaxy S22"},
-    {"id": "galaxy-a34", "name": "Galaxy A34", "cat": "phones", "brand": "samsung", "thumb": "phone", "tint": "indigo", "price": 310000, "status": "Foreign Used", "rating": 4.3, "review_count": 44, "description": "Big screen, big battery, small price. Great UK-used value.", "specs": {"Storage": "128GB", "Display": "6.6\" Super AMOLED", "Chip": "Dimensity 1080", "Camera": "48MP Triple"}, "series": "Galaxy A"},
-    {"id": "hp-spectre-x360", "name": "HP Spectre x360", "cat": "laptops", "brand": "hp", "thumb": "laptop", "tint": "blue", "price": 1650000, "status": "Brand New", "rating": 4.8, "review_count": 33, "badge": "Best Seller", "is_featured": True, "description": "Convertible premium ultrabook. OLED touch display, gem-cut design.", "specs": {"CPU": "Intel Core Ultra 7", "RAM": "16GB", "Storage": "1TB SSD", "Display": "13.5\" 3K2K OLED Touch"}, "series": "Spectre"},
-    {"id": "hp-pavilion-15", "name": "HP Pavilion 15", "cat": "laptops", "brand": "hp", "thumb": "laptop", "tint": "blue", "price": 780000, "status": "Brand New", "rating": 4.5, "review_count": 28, "description": "The dependable all-rounder for work and study. Fast SSD, full-size keyboard.", "specs": {"CPU": "Intel Core i5-1335U", "RAM": "16GB", "Storage": "512GB SSD", "Display": "15.6\" FHD"}, "series": "Pavilion"},
-    {"id": "hp-elitebook-840", "name": "HP EliteBook 840 G7", "cat": "laptops", "brand": "hp", "thumb": "laptop", "tint": "blue", "price": 520000, "status": "Foreign Used", "rating": 4.6, "review_count": 47, "description": "Business-grade build, ex-UK corporate. Tough, fast, professional.", "specs": {"CPU": "Intel Core i7-10610U", "RAM": "16GB", "Storage": "512GB SSD", "Display": "14\" FHD"}, "series": "EliteBook"},
-    {"id": "hp-probook-450", "name": "HP ProBook 450 G8", "cat": "laptops", "brand": "hp", "thumb": "laptop", "tint": "blue", "price": 410000, "status": "Foreign Used", "rating": 4.4, "review_count": 31, "description": "Reliable workhorse for everyday productivity. Clean UK-used.", "specs": {"CPU": "Intel Core i5-1135G7", "RAM": "8GB", "Storage": "256GB SSD", "Display": "15.6\" FHD"}, "series": "ProBook"},
-    {"id": "lenovo-thinkpad-x1", "name": "Lenovo ThinkPad X1 Carbon", "cat": "laptops", "brand": "lenovo", "thumb": "laptop", "tint": "indigo", "price": 1450000, "status": "Brand New", "rating": 4.8, "review_count": 39, "is_featured": True, "description": "The iconic business ultrabook — featherlight carbon-fibre, legendary keyboard.", "specs": {"CPU": "Intel Core i7-1355U", "RAM": "16GB", "Storage": "1TB SSD", "Display": "14\" 2.8K OLED"}, "series": "ThinkPad"},
-    {"id": "lenovo-yoga-slim-7", "name": "Lenovo Yoga Slim 7", "cat": "laptops", "brand": "lenovo", "thumb": "laptop", "tint": "indigo", "price": 920000, "status": "Brand New", "rating": 4.6, "review_count": 22, "description": "Slim, stylish and quiet. A gorgeous OLED for creators on the move.", "specs": {"CPU": "AMD Ryzen 7 7840U", "RAM": "16GB", "Storage": "512GB SSD", "Display": "14\" 2.8K OLED"}, "series": "Yoga"},
-    {"id": "lenovo-ideapad-3", "name": "Lenovo IdeaPad 3", "cat": "laptops", "brand": "lenovo", "thumb": "laptop", "tint": "indigo", "price": 450000, "status": "Brand New", "rating": 4.3, "review_count": 41, "description": "Affordable, dependable everyday laptop for school and home.", "specs": {"CPU": "AMD Ryzen 5 7520U", "RAM": "8GB", "Storage": "512GB SSD", "Display": "15.6\" FHD"}, "series": "IdeaPad"},
-    {"id": "lenovo-thinkpad-t480", "name": "Lenovo ThinkPad T480", "cat": "laptops", "brand": "lenovo", "thumb": "laptop", "tint": "indigo", "price": 380000, "status": "Foreign Used", "rating": 4.5, "review_count": 58, "description": "The bulletproof classic. Ex-UK, dual-battery, endlessly reliable.", "specs": {"CPU": "Intel Core i5-8350U", "RAM": "16GB", "Storage": "256GB SSD", "Display": "14\" FHD"}, "series": "ThinkPad"},
-    {"id": "charger-20w", "name": "20W USB-C Fast Charger", "cat": "accessories", "brand": "chargers", "thumb": "charger", "tint": "orange", "price": 18000, "rating": 4.6, "review_count": 84, "description": "Fast, compact USB-C power adapter. Charges iPhone & Galaxy in a hurry.", "specs": {"Output": "20W PD", "Port": "USB-C", "Box": "Charger only"}},
-    {"id": "charger-65w-gan", "name": "65W GaN Charger", "cat": "accessories", "brand": "chargers", "thumb": "charger", "tint": "orange", "price": 32000, "rating": 4.7, "review_count": 52, "is_featured": True, "description": "One small brick for phone, tablet and laptop. GaN-cool and travel-ready.", "specs": {"Output": "65W PD", "Ports": "2x USB-C + USB-A", "Tech": "GaN"}},
-    {"id": "powerbank-20000", "name": "20,000mAh Power Bank", "cat": "accessories", "brand": "power-banks", "thumb": "powerbank", "tint": "orange", "price": 42000, "rating": 4.6, "review_count": 67, "is_featured": True, "description": "Multi-day power for trips and long days. Fast-charge in and out.", "specs": {"Capacity": "20,000mAh", "Output": "22.5W", "Ports": "USB-C + 2x USB-A"}},
-    {"id": "powerbank-10000", "name": "10,000mAh Slim Power Bank", "cat": "accessories", "brand": "power-banks", "thumb": "powerbank", "tint": "orange", "price": 28000, "rating": 4.5, "review_count": 39, "description": "Pocket-slim top-up that disappears into a bag.", "specs": {"Capacity": "10,000mAh", "Output": "20W", "Ports": "USB-C + USB-A"}},
-    {"id": "cable-usbc-lightning", "name": "USB-C to Lightning Cable", "cat": "accessories", "brand": "cables", "thumb": "cable", "tint": "orange", "price": 9500, "rating": 4.5, "review_count": 73, "description": "Certified fast-charge cable for iPhone. Built to last.", "specs": {"Length": "1m", "Rating": "MFi Certified", "Speed": "Fast Charge"}},
-    {"id": "cable-usbc-braided", "name": "Braided USB-C Cable 2m", "cat": "accessories", "brand": "cables", "thumb": "cable", "tint": "orange", "price": 7000, "rating": 4.4, "review_count": 61, "description": "Long, tough, tangle-free. Reaches from the socket to the sofa.", "specs": {"Length": "2m", "Jacket": "Nylon Braided", "Speed": "60W"}},
-    {"id": "pouch-leather", "name": "Leather Phone Pouch", "cat": "accessories", "brand": "pouches", "thumb": "case", "tint": "orange", "price": 12000, "rating": 4.6, "review_count": 28, "description": "Slim sleeve that keeps your phone scratch-free in style.", "specs": {"Material": "PU Leather", "Fit": "Universal 6.1–6.8\""}},
-    {"id": "case-clear", "name": "Shockproof Clear Case", "cat": "accessories", "brand": "pouches", "thumb": "case", "tint": "orange", "price": 8500, "rating": 4.5, "review_count": 95, "description": "Crystal-clear protection that shows off your phone.", "specs": {"Material": "TPU + PC", "Drop": "2m tested"}},
-    {"id": "screen-guard-tempered", "name": "Tempered Glass Screen Guard", "cat": "accessories", "brand": "screen-guards", "thumb": "shield", "tint": "orange", "price": 5000, "rating": 4.5, "review_count": 142, "description": "Crisp, crack-resistant 9H glass. Comes with an alignment kit.", "specs": {"Hardness": "9H", "Pack": "2-pack + kit"}},
-    {"id": "screen-guard-privacy", "name": "Privacy Screen Guard", "cat": "accessories", "brand": "screen-guards", "thumb": "shield", "tint": "orange", "price": 7500, "rating": 4.4, "review_count": 38, "description": "Keep prying eyes out. Anti-spy 9H tempered glass.", "specs": {"Hardness": "9H", "Feature": "28° Privacy Filter"}},
-    {"id": "hp-charger-65w", "name": "HP 65W Laptop Charger", "cat": "laptop-accessories", "brand": "laptop-chargers", "thumb": "charger", "tint": "blue", "price": 22000, "rating": 4.5, "review_count": 33, "description": "Genuine-grade replacement charger for HP laptops.", "specs": {"Output": "65W", "Tip": "Blue Pin / USB-C", "Fit": "HP Pavilion / EliteBook"}},
-    {"id": "lenovo-adapter-65w", "name": "Lenovo 65W USB-C Adapter", "cat": "laptop-accessories", "brand": "laptop-chargers", "thumb": "charger", "tint": "indigo", "price": 24000, "rating": 4.6, "review_count": 27, "description": "Slim USB-C power adapter for modern Lenovo machines.", "specs": {"Output": "65W", "Port": "USB-C", "Fit": "ThinkPad / Yoga / IdeaPad"}},
-    {"id": "thinkpad-battery", "name": "ThinkPad Replacement Battery", "cat": "laptop-accessories", "brand": "laptop-batteries", "thumb": "battery", "tint": "indigo", "price": 38000, "rating": 4.4, "review_count": 19, "is_featured": True, "description": "Bring an old ThinkPad back to all-day life.", "specs": {"Capacity": "57Wh", "Cells": "6-cell", "Fit": "ThinkPad T-series"}},
-    {"id": "hp-pavilion-battery", "name": "HP Pavilion Battery", "cat": "laptop-accessories", "brand": "laptop-batteries", "thumb": "battery", "tint": "blue", "price": 35000, "rating": 4.3, "review_count": 21, "description": "Fresh battery for fading HP Pavilions. Easy swap.", "specs": {"Capacity": "41Wh", "Cells": "3-cell", "Fit": "HP Pavilion 15"}},
-    {"id": "cooling-pad", "name": "Laptop Cooling Pad", "cat": "laptop-accessories", "brand": "laptop-other", "thumb": "laptop", "tint": "blue", "price": 19000, "rating": 4.5, "review_count": 44, "description": "Keep things cool on hot afternoons. Adjustable, quiet fans.", "specs": {"Fans": "5x Quiet", "Fit": "Up to 17\"", "Ports": "USB Pass-through"}},
-    {"id": "laptop-sleeve", "name": "15.6\" Laptop Sleeve", "cat": "laptop-accessories", "brand": "laptop-other", "thumb": "case", "tint": "indigo", "price": 11000, "rating": 4.6, "review_count": 36, "description": "Padded, water-resistant protection with a handy front pocket.", "specs": {"Fit": "15.6\"", "Material": "Water-resistant", "Pocket": "Front zip"}},
-    # One-time offers
-    {"id": "ot-iphone-14-promax", "name": "iPhone 14 Pro Max", "cat": "phones", "brand": "iphone", "thumb": "phone", "tint": "blue", "price": 780000, "old_price": 980000, "status": "Nigeria-Used", "is_one_time": True, "stock": 1, "rating": 4.5, "review_count": 6, "one_time_note": "Tiny hairline scratch on back glass. Screen flawless. Battery 86%.", "description": "One unit only. A clean Nigeria-used Pro Max at a price that won't repeat.", "specs": {"Storage": "256GB", "Display": "6.7\" ProMotion", "Chip": "A16 Bionic", "Camera": "48MP Triple"}, "series": "iPhone 14"},
-    {"id": "ot-galaxy-s23-ultra", "name": "Galaxy S23 Ultra", "cat": "phones", "brand": "samsung", "thumb": "phone", "tint": "indigo", "price": 820000, "old_price": 1000000, "status": "Foreign Used", "is_one_time": True, "stock": 1, "rating": 4.4, "review_count": 4, "one_time_note": "Faint single pixel dot, invisible in normal use. S Pen included.", "description": "One unit only. UK-used Ultra with a barely-there blemish and a big discount.", "specs": {"Storage": "256GB", "Display": "6.8\" QHD+ AMOLED", "Chip": "Snapdragon 8 Gen 2", "Camera": "200MP Quad"}, "series": "Galaxy S23"},
-    {"id": "ot-macbook-air-m1", "name": "MacBook Air M1", "cat": "laptops", "brand": "hp", "thumb": "laptop", "tint": "indigo", "price": 650000, "old_price": 820000, "status": "Nigeria-Used", "is_one_time": True, "stock": 1, "rating": 4.6, "review_count": 9, "one_time_note": "Small dent on lid corner. Battery cycle count 210. Runs perfectly.", "description": "One unit only. A silent, fast M1 Air with a cosmetic dent — pure value.", "specs": {"CPU": "Apple M1", "RAM": "8GB", "Storage": "256GB SSD", "Display": "13.3\" Retina"}, "series": "MacBook Air"},
-    {"id": "ot-hp-elitebook-dent", "name": "HP EliteBook 840 (ex-UK)", "cat": "laptops", "brand": "hp", "thumb": "laptop", "tint": "blue", "price": 360000, "old_price": 520000, "status": "Foreign Used", "is_one_time": True, "stock": 1, "rating": 4.2, "review_count": 3, "one_time_note": "Visible dent on palm rest. Fully functional, keyboard perfect.", "description": "One unit only. Workhorse EliteBook with a battle scar and a steep markdown.", "specs": {"CPU": "Intel Core i7-10610U", "RAM": "16GB", "Storage": "512GB SSD", "Display": "14\" FHD"}, "series": "EliteBook"},
-    {"id": "ot-galaxy-zfold4", "name": "Galaxy Z Fold4", "cat": "phones", "brand": "samsung", "thumb": "phone", "tint": "indigo", "price": 720000, "old_price": 950000, "status": "Foreign Used", "is_one_time": True, "stock": 1, "rating": 4.3, "review_count": 5, "one_time_note": "Light crease wear (normal for folds). Hinge tight, no dead pixels.", "description": "One unit only. A foldable tablet-phone at an unrepeatable price.", "specs": {"Storage": "256GB", "Display": "7.6\" Foldable AMOLED", "Chip": "Snapdragon 8+ Gen 1", "Cover": "6.2\" AMOLED"}, "series": "Galaxy Z Fold"},
-    {"id": "ot-iphone-13-promax", "name": "iPhone 13 Pro Max", "cat": "phones", "brand": "iphone", "thumb": "phone", "tint": "blue", "price": 560000, "old_price": 700000, "status": "Nigeria-Used", "is_one_time": True, "stock": 1, "rating": 4.5, "review_count": 7, "one_time_note": "Aftermarket screen (excellent quality). Body clean. Battery 88%.", "description": "One unit only. Big-battery Pro Max with a quality replacement screen.", "specs": {"Storage": "128GB", "Display": "6.7\" ProMotion", "Chip": "A15 Bionic", "Camera": "12MP Triple"}, "series": "iPhone 13"},
+    # ── HP Laptops ────────────────────────────────────────────────────────────
+    {
+        "id": "hp-elitebook-840-g1", "name": "HP EliteBook 840 G1", "cat": "laptops", "brand": "hp",
+        "thumb": "laptop", "tint": "blue", "price": 200000, "old_price": 180000,
+        "status": "Foreign Used", "rating": 4.2, "review_count": 28,
+        "description": "Compact 14-inch business ultrabook. Solid build, fast SSD, ex-UK corporate.",
+        "specs": {"CPU": "Intel Core i5 (4th Gen)", "RAM": "8GB", "Storage": "256GB SSD", "Display": '14" FHD'},
+        "series": "EliteBook",
+    },
+    {
+        "id": "hp-elitebook-820-g3", "name": "HP EliteBook 820 G3", "cat": "laptops", "brand": "hp",
+        "thumb": "laptop", "tint": "blue", "price": 220000,
+        "status": "Foreign Used", "rating": 4.3, "review_count": 22,
+        "description": "12-inch ultrabook with i7, ideal for travel and light work. Ex-UK, clean.",
+        "specs": {"CPU": "Intel Core i7 (6th Gen)", "RAM": "8GB", "Storage": "256GB SSD", "Display": '12.5" FHD'},
+        "series": "EliteBook",
+    },
+    {
+        "id": "hp-elitebook-820-g4", "name": "HP EliteBook 820 G4", "cat": "laptops", "brand": "hp",
+        "thumb": "laptop", "tint": "blue", "price": 270000, "old_price": 240000,
+        "status": "Foreign Used", "rating": 4.3, "review_count": 19,
+        "description": "Slim business ultrabook — i5, 256GB SSD, snappy performance.",
+        "specs": {"CPU": "Intel Core i5 (7th Gen)", "RAM": "8GB", "Storage": "256GB SSD", "Display": '12.5" FHD'},
+        "series": "EliteBook",
+    },
+    {
+        "id": "hp-elitebook-840-g3", "name": "HP EliteBook 840 G3", "cat": "laptops", "brand": "hp",
+        "thumb": "laptop", "tint": "blue", "price": 250000, "old_price": 230000,
+        "status": "Foreign Used", "rating": 4.3, "review_count": 31,
+        "description": "The reliable 840 G3 — dual-band WiFi, fast SSD, ex-UK corporate.",
+        "specs": {"CPU": "Intel Core i5 (6th Gen)", "RAM": "8GB", "Storage": "256GB SSD", "Display": '14" FHD'},
+        "series": "EliteBook",
+    },
+    {
+        "id": "hp-elitebook-840-g4", "name": "HP EliteBook 840 G4", "cat": "laptops", "brand": "hp",
+        "thumb": "laptop", "tint": "blue", "price": 300000,
+        "status": "Foreign Used", "rating": 4.4, "review_count": 36,
+        "description": "Upgraded 840 with 7th gen i5 and 256GB SSD. Business-grade reliability.",
+        "specs": {"CPU": "Intel Core i5 (7th Gen)", "RAM": "8GB", "Storage": "256GB SSD", "Display": '14" FHD'},
+        "series": "EliteBook",
+    },
+    {
+        "id": "hp-elitebook-840-g6", "name": "HP EliteBook 840 G6", "cat": "laptops", "brand": "hp",
+        "thumb": "laptop", "tint": "blue", "price": 400000,
+        "status": "Foreign Used", "rating": 4.5, "review_count": 44, "is_featured": True,
+        "description": "Modern thin-frame 840 with 8th-gen i5, 16GB RAM and fast SSD. Ex-UK, excellent condition.",
+        "specs": {"CPU": "Intel Core i5 (8th Gen)", "RAM": "16GB", "Storage": "256GB SSD", "Display": '14" FHD'},
+        "series": "EliteBook",
+    },
+    {
+        "id": "hp-elitebook-830-g7", "name": "HP EliteBook 830 G7", "cat": "laptops", "brand": "hp",
+        "thumb": "laptop", "tint": "blue", "price": 430000,
+        "status": "Foreign Used", "rating": 4.5, "review_count": 27,
+        "description": "13-inch premium ultrabook with 16GB RAM and SSD. Lightweight, professional.",
+        "specs": {"CPU": "Intel Core i5 (10th Gen)", "RAM": "16GB", "Storage": "256GB SSD", "Display": '13.3" FHD'},
+        "series": "EliteBook",
+    },
+    {
+        "id": "hp-elitebook-1040-g6", "name": "HP EliteBook 1040 G6", "cat": "laptops", "brand": "hp",
+        "thumb": "laptop", "tint": "blue", "price": 500000,
+        "status": "Foreign Used", "rating": 4.6, "review_count": 18, "is_featured": True,
+        "description": "HP's top-tier ultrabook — feather-light carbon chassis, premium display.",
+        "specs": {"CPU": "Intel Core i7 (8th Gen)", "RAM": "16GB", "Storage": "512GB SSD", "Display": '14" FHD'},
+        "series": "EliteBook",
+    },
+    {
+        "id": "hp-elitebook-1040-g8", "name": "HP EliteBook 1040 G8", "cat": "laptops", "brand": "hp",
+        "thumb": "laptop", "tint": "blue", "price": 800000,
+        "status": "Foreign Used", "rating": 4.7, "review_count": 14, "is_featured": True,
+        "description": "Flagship 1040 G8 — i7 11th gen, 32GB RAM, 1TB SSD. Near-new condition.",
+        "specs": {"CPU": "Intel Core i7 (11th Gen)", "RAM": "32GB", "Storage": "1TB SSD", "Display": '14" FHD'},
+        "series": "EliteBook",
+    },
+    {
+        "id": "hp-probook-450-g5", "name": "HP ProBook 450 G5", "cat": "laptops", "brand": "hp",
+        "thumb": "laptop", "tint": "blue", "price": 150000,
+        "status": "Foreign Used", "rating": 4.2, "review_count": 33,
+        "description": "Affordable 15-inch workhorse with i5 and large storage. Great value.",
+        "specs": {"CPU": "Intel Core i5 (8th Gen)", "RAM": "8GB", "Storage": "500GB HDD", "Display": '15.6" FHD'},
+        "series": "ProBook",
+    },
+    {
+        "id": "hp-probook-11-g4", "name": "HP ProBook 11 G4", "cat": "laptops", "brand": "hp",
+        "thumb": "laptop", "tint": "blue", "price": 190000,
+        "status": "Foreign Used", "rating": 4.1, "review_count": 15,
+        "description": "Compact rugged 11-inch ProBook. Ideal for students and light work.",
+        "specs": {"CPU": "Intel Celeron", "RAM": "8GB", "Storage": "128GB SSD", "Display": '11.6" HD'},
+        "series": "ProBook",
+    },
+    {
+        "id": "hp-probook-11-g5", "name": "HP ProBook 11 G5", "cat": "laptops", "brand": "hp",
+        "thumb": "laptop", "tint": "blue", "price": 190000,
+        "status": "Foreign Used", "rating": 4.1, "review_count": 12,
+        "description": "Updated G5 edition of the rugged compact ProBook 11.",
+        "specs": {"CPU": "Intel Celeron", "RAM": "8GB", "Storage": "128GB SSD", "Display": '11.6" HD'},
+        "series": "ProBook",
+    },
+
+    # ── Dell Laptops ──────────────────────────────────────────────────────────
+    {
+        "id": "dell-vostro-15", "name": "Dell Vostro 15", "cat": "laptops", "brand": "dell",
+        "thumb": "laptop", "tint": "indigo", "price": 150000,
+        "status": "Foreign Used", "rating": 4.0, "review_count": 18,
+        "description": "Entry-level 15-inch Dell. Solid daily driver for light tasks.",
+        "specs": {"CPU": "Intel Core i3", "RAM": "4GB", "Storage": "128GB SSD", "Display": '15.6" HD'},
+        "series": "Vostro",
+    },
+    {
+        "id": "dell-latitude-3190", "name": "Dell Latitude 3190", "cat": "laptops", "brand": "dell",
+        "thumb": "laptop", "tint": "indigo", "price": 170000,
+        "status": "Foreign Used", "rating": 4.1, "review_count": 14,
+        "description": "Compact 11-inch education-grade Latitude. Rugged, reliable, ex-UK.",
+        "specs": {"CPU": "Intel Celeron N", "RAM": "8GB", "Storage": "128GB SSD", "Display": '11.6" HD'},
+        "series": "Latitude",
+    },
+    {
+        "id": "dell-latitude-5300", "name": "Dell Latitude 5300", "cat": "laptops", "brand": "dell",
+        "thumb": "laptop", "tint": "indigo", "price": 400000, "old_price": 370000,
+        "status": "Foreign Used", "rating": 4.5, "review_count": 29,
+        "description": "13-inch business Latitude with i7, 16GB RAM. Thin, light, professional.",
+        "specs": {"CPU": "Intel Core i7 (8th Gen)", "RAM": "16GB", "Storage": "256GB SSD", "Display": '13.3" FHD'},
+        "series": "Latitude",
+    },
+    {
+        "id": "dell-latitude-5410", "name": "Dell Latitude 5410", "cat": "laptops", "brand": "dell",
+        "thumb": "laptop", "tint": "indigo", "price": 310000, "old_price": 280000,
+        "status": "Foreign Used", "rating": 4.4, "review_count": 37, "is_featured": True,
+        "description": "14-inch corporate Latitude — i5 10th gen, backlit keyboard, fingerprint reader.",
+        "specs": {"CPU": "Intel Core i5 (10th Gen)", "RAM": "8GB", "Storage": "256GB SSD", "Display": '14" FHD'},
+        "series": "Latitude",
+    },
+    {
+        "id": "dell-latitude-5510", "name": "Dell Latitude 5510", "cat": "laptops", "brand": "dell",
+        "thumb": "laptop", "tint": "indigo", "price": 350000,
+        "status": "Foreign Used", "rating": 4.4, "review_count": 24,
+        "description": "15-inch touchscreen Latitude with i5, 16GB RAM and backlit keyboard.",
+        "specs": {"CPU": "Intel Core i5 (10th Gen)", "RAM": "16GB", "Storage": "512GB SSD", "Display": '15.6" FHD Touch'},
+        "series": "Latitude",
+    },
+    {
+        "id": "dell-latitude-5520", "name": "Dell Latitude 5520", "cat": "laptops", "brand": "dell",
+        "thumb": "laptop", "tint": "indigo", "price": 350000,
+        "status": "Foreign Used", "rating": 4.4, "review_count": 21,
+        "description": "15-inch 11th-gen i5 with touchscreen, fingerprint and facial recognition.",
+        "specs": {"CPU": "Intel Core i5 (11th Gen)", "RAM": "16GB", "Storage": "256GB SSD", "Display": '15.6" FHD Touch'},
+        "series": "Latitude",
+    },
+    {
+        "id": "dell-latitude-5530", "name": "Dell Latitude 5530", "cat": "laptops", "brand": "dell",
+        "thumb": "laptop", "tint": "indigo", "price": 450000,
+        "status": "Foreign Used", "rating": 4.5, "review_count": 19, "is_featured": True,
+        "description": "15-inch modern Latitude with 512GB SSD and backlit keyboard. Nearly new.",
+        "specs": {"CPU": "Intel Core i5 (12th Gen)", "RAM": "16GB", "Storage": "512GB SSD", "Display": '15.6" FHD'},
+        "series": "Latitude",
+    },
+    {
+        "id": "dell-latitude-5540", "name": "Dell Latitude 5540", "cat": "laptops", "brand": "dell",
+        "thumb": "laptop", "tint": "indigo", "price": 450000,
+        "status": "Foreign Used", "rating": 4.5, "review_count": 16,
+        "description": "13th-gen 15-inch Latitude — backlit keyboard, fingerprint, facial recognition.",
+        "specs": {"CPU": "Intel Core i5 (13th Gen)", "RAM": "16GB", "Storage": "512GB SSD", "Display": '15.6" FHD'},
+        "series": "Latitude",
+    },
+    {
+        "id": "dell-latitude-7390", "name": "Dell Latitude 7390", "cat": "laptops", "brand": "dell",
+        "thumb": "laptop", "tint": "indigo", "price": 430000,
+        "status": "Foreign Used", "rating": 4.5, "review_count": 23,
+        "description": "Premium 13-inch ultrabook from Dell's top Latitude line. Ultra-thin, business-grade.",
+        "specs": {"CPU": "Intel Core i7 (8th Gen)", "RAM": "16GB", "Storage": "256GB SSD", "Display": '13.3" FHD'},
+        "series": "Latitude",
+    },
+    {
+        "id": "dell-precision-3561", "name": "Dell Precision 3561", "cat": "laptops", "brand": "dell",
+        "thumb": "laptop", "tint": "indigo", "price": 380000,
+        "status": "Foreign Used", "rating": 4.4, "review_count": 11,
+        "description": "Entry workstation with i7 11th gen and dedicated graphics. For creators and engineers.",
+        "specs": {"CPU": "Intel Core i7 (11th Gen)", "RAM": "16GB", "Storage": "256GB SSD", "Display": '15.6" FHD'},
+        "series": "Precision",
+    },
+
+    # ── Lenovo Laptops ────────────────────────────────────────────────────────
+    {
+        "id": "lenovo-yoga-x13", "name": "Lenovo Yoga x13", "cat": "laptops", "brand": "lenovo",
+        "thumb": "laptop", "tint": "indigo", "price": 500000, "old_price": 450000,
+        "status": "Foreign Used", "rating": 4.6, "review_count": 22,
+        "description": "2-in-1 convertible with 10th-gen i7, 16GB RAM and 512GB SSD. Touchscreen, stylus-ready.",
+        "specs": {"CPU": "Intel Core i7 (10th Gen)", "RAM": "16GB", "Storage": "512GB SSD", "Display": '13.3" FHD Touch'},
+        "series": "Yoga",
+    },
+    {
+        "id": "lenovo-thinkpad-yoga-x390", "name": "Lenovo ThinkPad Yoga x390", "cat": "laptops", "brand": "lenovo",
+        "thumb": "laptop", "tint": "indigo", "price": 470000,
+        "status": "Foreign Used", "rating": 4.5, "review_count": 17,
+        "description": "ThinkPad-grade build in a touchscreen convertible. 8th-gen i5, 16GB RAM.",
+        "specs": {"CPU": "Intel Core i5 (8th Gen)", "RAM": "16GB", "Storage": "256GB SSD", "Display": '13.3" FHD Touch'},
+        "series": "ThinkPad",
+    },
+    {
+        "id": "lenovo-thinkpad-yoga-x1", "name": "Lenovo ThinkPad Yoga x1", "cat": "laptops", "brand": "lenovo",
+        "thumb": "laptop", "tint": "indigo", "price": 470000,
+        "status": "Foreign Used", "rating": 4.5, "review_count": 13,
+        "description": "Premium ThinkPad convertible with OLED touch display option and solid i5 performance.",
+        "specs": {"CPU": "Intel Core i5 (8th Gen)", "RAM": "8GB", "Storage": "512GB SSD", "Display": '13.3" FHD Touch'},
+        "series": "ThinkPad",
+    },
+
+    # ── Apple Laptops ─────────────────────────────────────────────────────────
+    {
+        "id": "apple-macbook-pro-2020", "name": "Apple MacBook Pro 2020", "cat": "laptops", "brand": "apple",
+        "thumb": "laptop", "tint": "indigo", "price": 670000,
+        "status": "Foreign Used", "rating": 4.8, "review_count": 31, "is_featured": True,
+        "description": "Intel MacBook Pro 2020 — 16GB RAM, 512GB SSD. Silent Magic Keyboard, Touch Bar.",
+        "specs": {"CPU": "Intel Core i5 (10th Gen)", "RAM": "16GB", "Storage": "512GB SSD", "Display": '13.3" Retina'},
+        "series": "MacBook Pro",
+    },
+    {
+        "id": "apple-macbook-pro-2018", "name": "Apple MacBook Pro 2018", "cat": "laptops", "brand": "apple",
+        "thumb": "laptop", "tint": "indigo", "price": 500000,
+        "status": "Foreign Used", "rating": 4.6, "review_count": 24,
+        "description": "15-inch MacBook Pro 2018 — i7, 16GB RAM, 512GB SSD. Great for creative work.",
+        "specs": {"CPU": "Intel Core i7 (8th Gen)", "RAM": "16GB", "Storage": "512GB SSD", "Display": '15.6" Retina'},
+        "series": "MacBook Pro",
+    },
+
+    # ── Phone Chargers ────────────────────────────────────────────────────────
+    {
+        "id": "charger-apple-20w-2pin", "name": "Apple 20W USB-C Charger (2-Pin)", "cat": "accessories", "brand": "chargers",
+        "thumb": "charger", "tint": "orange", "price": 15000,
+        "rating": 4.5, "review_count": 62,
+        "description": "Compact Apple-grade 20W USB-C adapter. Fast-charges iPhone 8 and above. 2-pin plug.",
+        "specs": {"Output": "20W PD", "Port": "USB-C", "Plug": "2-Pin"},
+    },
+    {
+        "id": "charger-apple-20w-set", "name": "Apple 20W Charger + Lightning Cable", "cat": "accessories", "brand": "chargers",
+        "thumb": "charger", "tint": "orange", "price": 22000,
+        "rating": 4.6, "review_count": 48,
+        "description": "Complete fast-charge set — 20W adapter and USB-C to Lightning cable in the box.",
+        "specs": {"Output": "20W PD", "Includes": "Adapter + Cable", "Cable": "USB-C to Lightning"},
+    },
+    {
+        "id": "charger-apple-20w-3pin", "name": "Apple 20W USB-C Charger (3-Pin)", "cat": "accessories", "brand": "chargers",
+        "thumb": "charger", "tint": "orange", "price": 17000,
+        "rating": 4.5, "review_count": 39,
+        "description": "Same 20W fast-charge power but with a 3-pin UK-style plug.",
+        "specs": {"Output": "20W PD", "Port": "USB-C", "Plug": "3-Pin"},
+    },
+    {
+        "id": "charger-apple-40w", "name": "Apple 40W Dual USB-C Charger", "cat": "accessories", "brand": "chargers",
+        "thumb": "charger", "tint": "orange", "price": 28000,
+        "rating": 4.6, "review_count": 31, "is_featured": True,
+        "description": "Charge two Apple devices simultaneously. 40W total, two USB-C ports.",
+        "specs": {"Output": "40W Total", "Ports": "2x USB-C", "Compat": "iPhone / iPad / Mac"},
+    },
+    {
+        "id": "charger-samsung-45w", "name": "Samsung 45W Super Fast Charger", "cat": "accessories", "brand": "chargers",
+        "thumb": "charger", "tint": "orange", "price": 19000,
+        "rating": 4.6, "review_count": 54,
+        "description": "Official Samsung Super Fast Charging 2.0. Designed for S22 Ultra, S23 Ultra, S24 series.",
+        "specs": {"Output": "45W", "Port": "USB-C", "Tech": "Super Fast Charging 2.0"},
+    },
+    {
+        "id": "charger-samsung-65w", "name": "Samsung 65W Travel Adapter", "cat": "accessories", "brand": "chargers",
+        "thumb": "charger", "tint": "orange", "price": 26000,
+        "rating": 4.7, "review_count": 28, "is_featured": True,
+        "description": "High-power Samsung adapter for phones and tablets. Compact travel design.",
+        "specs": {"Output": "65W", "Port": "USB-C", "Tech": "Super Fast Charging"},
+    },
+    {
+        "id": "charger-oraimo-iphone", "name": "Oraimo iPhone Fast Charger", "cat": "accessories", "brand": "chargers",
+        "thumb": "charger", "tint": "orange", "price": 9500,
+        "rating": 4.4, "review_count": 77,
+        "description": "Reliable Oraimo 20W charger for iPhones. MFi-grade performance at a smart price.",
+        "specs": {"Output": "20W PD", "Port": "USB-C", "Brand": "Oraimo"},
+    },
+    {
+        "id": "charger-oraimo-android", "name": "Oraimo Android Fast Charger", "cat": "accessories", "brand": "chargers",
+        "thumb": "charger", "tint": "orange", "price": 8500,
+        "rating": 4.4, "review_count": 65,
+        "description": "Quick Charge compatible Oraimo adapter for Samsung and Android phones.",
+        "specs": {"Output": "18W QC", "Port": "USB-A", "Brand": "Oraimo"},
+    },
+    {
+        "id": "charger-car", "name": "Dual USB Car Charger", "cat": "accessories", "brand": "chargers",
+        "thumb": "charger", "tint": "orange", "price": 7000,
+        "rating": 4.3, "review_count": 44,
+        "description": "Charge two phones at once from your car's 12V socket. Compact, heat-resistant.",
+        "specs": {"Output": "24W Total", "Ports": "USB-A + USB-C", "Mount": "12V Socket"},
+    },
+
+    # ── Laptop Chargers ───────────────────────────────────────────────────────
+    {
+        "id": "lcharger-hp-65w-usbc-corner", "name": "HP 65W USB-C Adapter (Corner)", "cat": "accessories", "brand": "laptop-chargers",
+        "thumb": "charger", "tint": "blue", "price": 18000,
+        "rating": 4.5, "review_count": 29,
+        "description": "Replacement adapter for HP EliteBook 830/840/1040 G-series with USB-C corner connector.",
+        "specs": {"Output": "20V / 3.25A — 65W", "Connector": "USB-C Corner", "Fit": "HP EliteBook G6/G7"},
+    },
+    {
+        "id": "lcharger-hp-65w-usbc-straight", "name": "HP 65W USB-C Adapter (Straight)", "cat": "accessories", "brand": "laptop-chargers",
+        "thumb": "charger", "tint": "blue", "price": 18500,
+        "rating": 4.5, "review_count": 24,
+        "description": "Straight USB-C variant for HP EliteBook models that take a direct plug.",
+        "specs": {"Output": "20V / 3.25A — 65W", "Connector": "USB-C Straight", "Fit": "HP EliteBook G6/G7"},
+    },
+    {
+        "id": "lcharger-hp-65w-usbc-oval", "name": "HP 65W USB-C Adapter (Oval)", "cat": "accessories", "brand": "laptop-chargers",
+        "thumb": "charger", "tint": "blue", "price": 24000,
+        "rating": 4.5, "review_count": 18,
+        "description": "Oval USB-C connector variant — fits specific HP EliteBook models.",
+        "specs": {"Output": "20V / 3.25A — 65W", "Connector": "USB-C Oval", "Fit": "HP EliteBook"},
+    },
+    {
+        "id": "lcharger-hp-195v-smallpin", "name": "HP 65W Small Pin Adapter", "cat": "accessories", "brand": "laptop-chargers",
+        "thumb": "charger", "tint": "blue", "price": 18000,
+        "rating": 4.4, "review_count": 33,
+        "description": "Barrel-pin charger for older HP ProBook, EliteBook and Pavilion models.",
+        "specs": {"Output": "19.5V / 4.62A — 65W", "Connector": "Small Barrel Pin", "Fit": "HP ProBook / Pavilion"},
+    },
+    {
+        "id": "lcharger-dell-usbc", "name": "Dell 65W USB-C Adapter", "cat": "accessories", "brand": "laptop-chargers",
+        "thumb": "charger", "tint": "indigo", "price": 19000,
+        "rating": 4.5, "review_count": 27,
+        "description": "USB-C power delivery adapter for modern Dell Latitude and XPS models.",
+        "specs": {"Output": "20V / 3.25A — 65W", "Connector": "USB-C", "Fit": "Dell Latitude 5x / XPS"},
+    },
+    {
+        "id": "lcharger-dell-195v-smallpin", "name": "Dell 65W Small Pin Adapter", "cat": "accessories", "brand": "laptop-chargers",
+        "thumb": "charger", "tint": "indigo", "price": 20000,
+        "rating": 4.4, "review_count": 22,
+        "description": "Slim barrel-pin charger for Dell Inspiron and older Latitude models.",
+        "specs": {"Output": "19.5V / 3.34A — 65W", "Connector": "Small Barrel Pin", "Fit": "Dell Inspiron / Latitude"},
+    },
+    {
+        "id": "lcharger-dell-195v-bigpin", "name": "Dell 90W Big Pin Adapter", "cat": "accessories", "brand": "laptop-chargers",
+        "thumb": "charger", "tint": "indigo", "price": 23000,
+        "rating": 4.4, "review_count": 19,
+        "description": "Higher-wattage oval-tip charger for Dell Vostro and larger Latitude models.",
+        "specs": {"Output": "19.5V / 4.62A — 90W", "Connector": "Big Barrel Oval", "Fit": "Dell Vostro / Latitude"},
+    },
+
+    # ── Laptop Batteries ──────────────────────────────────────────────────────
+    {
+        "id": "battery-cm03xl", "name": "HP Battery CM03XL", "cat": "accessories", "brand": "laptop-batteries",
+        "thumb": "battery", "tint": "blue", "price": 28500,
+        "rating": 4.4, "review_count": 22, "is_featured": True,
+        "description": "Replacement battery for HP EliteBook 840 G1 and G2. Restore all-day battery life.",
+        "specs": {"Part": "CM03XL", "Fit": "HP EliteBook 840 G1 / G2", "Type": "Li-ion"},
+    },
+    {
+        "id": "battery-sb03xl", "name": "HP Battery SB03XL", "cat": "accessories", "brand": "laptop-batteries",
+        "thumb": "battery", "tint": "blue", "price": 30000,
+        "rating": 4.4, "review_count": 18,
+        "description": "Battery for HP EliteBook 820 G1 and G2. Brings your old 820 back to life.",
+        "specs": {"Part": "SB03XL", "Fit": "HP EliteBook 820 G1 / G2", "Type": "Li-ion"},
+    },
+    {
+        "id": "battery-sn03xl", "name": "HP Battery SN03XL", "cat": "accessories", "brand": "laptop-batteries",
+        "thumb": "battery", "tint": "blue", "price": 30000,
+        "rating": 4.4, "review_count": 16,
+        "description": "Battery for HP EliteBook 820 G3 and G4. Fresh cells, long run time.",
+        "specs": {"Part": "SN03XL", "Fit": "HP EliteBook 820 G3 / G4", "Type": "Li-ion"},
+    },
+    {
+        "id": "battery-cs03xl", "name": "HP Battery CS03XL", "cat": "accessories", "brand": "laptop-batteries",
+        "thumb": "battery", "tint": "blue", "price": 30000,
+        "rating": 4.5, "review_count": 25,
+        "description": "Drop-in replacement for HP EliteBook 840 G3 and G4.",
+        "specs": {"Part": "CS03XL", "Fit": "HP EliteBook 840 G3 / G4", "Type": "Li-ion"},
+    },
+    {
+        "id": "battery-bg06xl", "name": "HP Battery BG06XL", "cat": "accessories", "brand": "laptop-batteries",
+        "thumb": "battery", "tint": "blue", "price": 38000,
+        "rating": 4.5, "review_count": 14,
+        "description": "Large-capacity battery for HP EliteBook 1040 G3. Premium long-life cells.",
+        "specs": {"Part": "BG06XL", "Fit": "HP EliteBook 1040 G3", "Type": "Li-ion"},
+    },
+    {
+        "id": "battery-bm04xl", "name": "HP Battery BM04XL", "cat": "accessories", "brand": "laptop-batteries",
+        "thumb": "battery", "tint": "blue", "price": 35000,
+        "rating": 4.4, "review_count": 11,
+        "description": "Replacement battery for HP EliteBook 1030 G3.",
+        "specs": {"Part": "BM04XL", "Fit": "HP EliteBook 1030 G3", "Type": "Li-ion"},
+    },
+    {
+        "id": "battery-om03xl", "name": "HP Battery OM03XL", "cat": "accessories", "brand": "laptop-batteries",
+        "thumb": "battery", "tint": "blue", "price": 36000,
+        "rating": 4.4, "review_count": 9,
+        "description": "Battery for HP EliteBook 1030 G2. Slim form factor, high energy density.",
+        "specs": {"Part": "OM03XL", "Fit": "HP EliteBook 1030 G2", "Type": "Li-ion"},
+    },
+    {
+        "id": "battery-bt04xl", "name": "HP Battery BT04XL", "cat": "accessories", "brand": "laptop-batteries",
+        "thumb": "battery", "tint": "blue", "price": 33000,
+        "rating": 4.3, "review_count": 13,
+        "description": "Battery for HP EliteBook Folio 9470m. Easy swap, direct fit.",
+        "specs": {"Part": "BT04XL", "Fit": "HP EliteBook Folio 9470m", "Type": "Li-ion"},
+    },
+
+    # ── Cables ────────────────────────────────────────────────────────────────
+    {
+        "id": "cable-usba-lightning-oraimo", "name": "Oraimo USB-A to Lightning Cable", "cat": "accessories", "brand": "cables",
+        "thumb": "cable", "tint": "orange", "price": 7500,
+        "rating": 4.4, "review_count": 88,
+        "description": "Reliable Oraimo charging cable for iPhone and AirPods. Nylon-braided, tangle-free.",
+        "specs": {"Length": "1m", "Connector": "USB-A to Lightning", "Jacket": "Nylon Braided"},
+    },
+    {
+        "id": "cable-usbc-lightning", "name": "USB-C to Lightning Cable", "cat": "accessories", "brand": "cables",
+        "thumb": "cable", "tint": "orange", "price": 9500,
+        "rating": 4.5, "review_count": 73,
+        "description": "Fast-charge cable for iPhone 8 and above. Pairs with 20W USB-C adapter.",
+        "specs": {"Length": "1m", "Connector": "USB-C to Lightning", "Speed": "Fast Charge"},
+    },
+    {
+        "id": "cable-usbc-usbc-oraimo", "name": "Oraimo USB-C to USB-C Cable", "cat": "accessories", "brand": "cables",
+        "thumb": "cable", "tint": "orange", "price": 7000,
+        "rating": 4.4, "review_count": 61,
+        "description": "60W USB-C cable for Samsung, laptops and modern Androids. Braided for durability.",
+        "specs": {"Length": "1m", "Connector": "USB-C to USB-C", "Speed": "60W PD"},
+    },
+    {
+        "id": "cable-usba-microusb", "name": "USB-A to Micro USB Cable", "cat": "accessories", "brand": "cables",
+        "thumb": "cable", "tint": "orange", "price": 4500,
+        "rating": 4.2, "review_count": 55,
+        "description": "Standard Micro USB cable for older Android phones and accessories.",
+        "specs": {"Length": "1m", "Connector": "USB-A to Micro USB", "Speed": "Standard Charge"},
+    },
+
+    # ── Power Banks ───────────────────────────────────────────────────────────
+    {
+        "id": "powerbank-20000", "name": "20,000mAh Power Bank", "cat": "accessories", "brand": "power-banks",
+        "thumb": "powerbank", "tint": "orange", "price": 42000,
+        "rating": 4.6, "review_count": 67, "is_featured": True,
+        "description": "Multi-day power for trips and long days. Fast-charge in and out via USB-C.",
+        "specs": {"Capacity": "20,000mAh", "Output": "22.5W", "Ports": "USB-C + 2x USB-A"},
+    },
+    {
+        "id": "powerbank-27000", "name": "27,000mAh Power Bank", "cat": "accessories", "brand": "power-banks",
+        "thumb": "powerbank", "tint": "orange", "price": 55000,
+        "rating": 4.7, "review_count": 34, "is_featured": True,
+        "description": "High-capacity travel companion — charges your phone 6+ times. USB-C PD 65W output.",
+        "specs": {"Capacity": "27,000mAh", "Output": "65W PD", "Ports": "USB-C + 2x USB-A"},
+    },
+
+    # ── Pouches & Cases ───────────────────────────────────────────────────────
+    {
+        "id": "pouch-iphone-6-8-se", "name": "Phone Pouch — iPhone 6 / 8 / SE", "cat": "accessories", "brand": "pouches",
+        "thumb": "case", "tint": "orange", "price": 8000,
+        "rating": 4.4, "review_count": 31,
+        "description": "Slim PU leather sleeve for iPhone 6, 7, 8 and SE (2nd/3rd gen). Drop-safe, scratch-free.",
+        "specs": {"Fit": "iPhone 6 · 7 · 8 · SE (2nd/3rd gen)", "Material": "PU Leather", "Closure": "Magnetic flap"},
+    },
+    {
+        "id": "pouch-iphone-x-11", "name": "Phone Pouch — iPhone X / 11", "cat": "accessories", "brand": "pouches",
+        "thumb": "case", "tint": "orange", "price": 9000,
+        "rating": 4.4, "review_count": 27,
+        "description": "Tailored sleeve for iPhone X, XS, XR, 11, 11 Pro and 11 Pro Max models.",
+        "specs": {"Fit": "iPhone X · XS · XR · 11 series", "Material": "PU Leather", "Closure": "Magnetic flap"},
+    },
+    {
+        "id": "pouch-iphone-12-14", "name": "Phone Pouch — iPhone 12 / 13 / 14", "cat": "accessories", "brand": "pouches",
+        "thumb": "case", "tint": "orange", "price": 10000,
+        "rating": 4.5, "review_count": 44,
+        "description": "Protective sleeve that fits all 12, 13 and 14 series iPhones (standard + Plus/Max).",
+        "specs": {"Fit": "iPhone 12 · 13 · 14 (all variants)", "Material": "PU Leather", "Closure": "Magnetic flap"},
+    },
+    {
+        "id": "pouch-iphone-15-17", "name": "Phone Pouch — iPhone 15 / 16 / 17", "cat": "accessories", "brand": "pouches",
+        "thumb": "case", "tint": "orange", "price": 11000,
+        "rating": 4.5, "review_count": 38,
+        "description": "Modern-cut sleeve for the latest iPhone generations. Titanium-edge safe.",
+        "specs": {"Fit": "iPhone 15 · 16 · 17 (all variants)", "Material": "PU Leather", "Closure": "Magnetic flap"},
+    },
+    {
+        "id": "pouch-samsung-s9-s10", "name": "Phone Pouch — Samsung S9 / S10", "cat": "accessories", "brand": "pouches",
+        "thumb": "case", "tint": "orange", "price": 8500,
+        "rating": 4.3, "review_count": 19,
+        "description": "Slim protective sleeve for Galaxy S9+ and S10+ models.",
+        "specs": {"Fit": "Galaxy S9+ · S10+", "Material": "PU Leather", "Closure": "Magnetic flap"},
+    },
+    {
+        "id": "pouch-samsung-s20-s25", "name": "Phone Pouch — Samsung S20–S25", "cat": "accessories", "brand": "pouches",
+        "thumb": "case", "tint": "orange", "price": 10000,
+        "rating": 4.4, "review_count": 22,
+        "description": "Well-fitted sleeve for Galaxy S20 through S25 series (standard, + and Ultra).",
+        "specs": {"Fit": "Galaxy S20 · S21 · S22 · S23 · S24 · S25 series", "Material": "PU Leather", "Closure": "Magnetic flap"},
+    },
+
+    # ── Screen Guards ─────────────────────────────────────────────────────────
+    {
+        "id": "sg-iphone-x-11", "name": "Screen Guard — iPhone X / 11", "cat": "accessories", "brand": "screen-guards",
+        "thumb": "shield", "tint": "orange", "price": 5000,
+        "rating": 4.4, "review_count": 56,
+        "description": "9H tempered glass for iPhone X, XS, XR, 11, 11 Pro and 11 Pro Max.",
+        "specs": {"Hardness": "9H", "Fit": "iPhone X · XS · XR · 11 series", "Pack": "2-pack + alignment kit"},
+    },
+    {
+        "id": "sg-iphone-12-13", "name": "Screen Guard — iPhone 12 / 13", "cat": "accessories", "brand": "screen-guards",
+        "thumb": "shield", "tint": "orange", "price": 5000,
+        "rating": 4.4, "review_count": 72,
+        "description": "Precision-cut 9H glass for iPhone 12 and 13 series (mini, standard, Pro, Max).",
+        "specs": {"Hardness": "9H", "Fit": "iPhone 12 · 13 (all variants)", "Pack": "2-pack + alignment kit"},
+    },
+    {
+        "id": "sg-iphone-14", "name": "Screen Guard — iPhone 14", "cat": "accessories", "brand": "screen-guards",
+        "thumb": "shield", "tint": "orange", "price": 5500,
+        "rating": 4.5, "review_count": 48,
+        "description": "9H tempered glass precisely cut for iPhone 14 and 14 Plus.",
+        "specs": {"Hardness": "9H", "Fit": "iPhone 14 · 14 Plus", "Pack": "2-pack + alignment kit"},
+    },
+    {
+        "id": "sg-iphone-15", "name": "Screen Guard — iPhone 15", "cat": "accessories", "brand": "screen-guards",
+        "thumb": "shield", "tint": "orange", "price": 6000,
+        "rating": 4.5, "review_count": 41,
+        "description": "9H glass for iPhone 15 and 15 Plus. Curved-edge safe cutouts.",
+        "specs": {"Hardness": "9H", "Fit": "iPhone 15 · 15 Plus", "Pack": "2-pack + alignment kit"},
+    },
+    {
+        "id": "sg-iphone-16-17", "name": "Screen Guard — iPhone 16 / 17", "cat": "accessories", "brand": "screen-guards",
+        "thumb": "shield", "tint": "orange", "price": 6500,
+        "rating": 4.5, "review_count": 29,
+        "description": "Latest-gen 9H glass for iPhone 16, 17 and their Plus/Pro/Max variants.",
+        "specs": {"Hardness": "9H", "Fit": "iPhone 16 · 17 (all variants)", "Pack": "2-pack + alignment kit"},
+    },
+    {
+        "id": "sg-samsung-ultra", "name": "Privacy Screen Guard — Samsung Ultra", "cat": "accessories", "brand": "screen-guards",
+        "thumb": "shield", "tint": "orange", "price": 7500,
+        "rating": 4.4, "review_count": 34,
+        "description": "Anti-spy 9H glass for Galaxy S22 Ultra, S23 Ultra, S24 Ultra and S25 Ultra.",
+        "specs": {"Hardness": "9H", "Feature": "28° Privacy Filter", "Fit": "Galaxy Ultra series"},
+    },
+    {
+        "id": "sg-samsung-s20-s25", "name": "Screen Guard — Samsung S20–S25", "cat": "accessories", "brand": "screen-guards",
+        "thumb": "shield", "tint": "orange", "price": 5500,
+        "rating": 4.3, "review_count": 38,
+        "description": "Crystal-clear 9H tempered glass for Galaxy S20 through S25 (standard/+).",
+        "specs": {"Hardness": "9H", "Fit": "Galaxy S20 · S21 · S22 · S23 · S24 · S25", "Pack": "2-pack"},
+    },
+
+    # ── Laptop Other ──────────────────────────────────────────────────────────
+    {
+        "id": "laptop-stand", "name": "Adjustable Laptop Stand", "cat": "accessories", "brand": "laptop-other",
+        "thumb": "laptop", "tint": "blue", "price": 18000,
+        "rating": 4.5, "review_count": 44,
+        "description": "Ergonomic aluminium stand — 6 height settings, keeps your laptop cool.",
+        "specs": {"Material": "Aluminium", "Fit": "10–17 inch", "Levels": "6 adjustable heights"},
+    },
+    {
+        "id": "laptop-handbag", "name": "Laptop Handbag 14\"", "cat": "accessories", "brand": "laptop-other",
+        "thumb": "case", "tint": "blue", "price": 14000,
+        "rating": 4.4, "review_count": 29,
+        "description": "Stylish tote with padded compartment for 14-inch laptops. Multiple pockets.",
+        "specs": {"Fit": '14"', "Material": "Canvas + PU trim", "Pockets": "3 exterior"},
+    },
+    {
+        "id": "laptop-backpack", "name": "Laptop Backpack 15.6\"", "cat": "accessories", "brand": "laptop-other",
+        "thumb": "case", "tint": "blue", "price": 22000,
+        "rating": 4.6, "review_count": 53, "is_featured": True,
+        "description": "Padded, water-resistant backpack with USB charging port and 15.6-inch laptop sleeve.",
+        "specs": {"Fit": '15.6"', "Material": "Water-resistant nylon", "Extra": "USB charging port"},
+    },
+    {
+        "id": "wireless-mouse", "name": "Wireless Mouse", "cat": "accessories", "brand": "laptop-other",
+        "thumb": "laptop", "tint": "blue", "price": 12000,
+        "rating": 4.5, "review_count": 61,
+        "description": "Silent 2.4GHz wireless mouse. DPI adjustable, ergonomic grip, nano USB receiver.",
+        "specs": {"Connection": "2.4GHz Wireless", "DPI": "800 / 1200 / 1600", "Battery": "AA (included)"},
+    },
+
+    # ── Audio ─────────────────────────────────────────────────────────────────
+    {
+        "id": "airpods-3rd-gen", "name": "Apple AirPods (3rd Gen)", "cat": "accessories", "brand": "audio",
+        "thumb": "cable", "tint": "blue", "price": 145000,
+        "rating": 4.7, "review_count": 84, "is_featured": True,
+        "description": "Spatial audio, Adaptive EQ and 30h total battery with the case. Brand new, sealed.",
+        "specs": {"Audio": "Spatial Audio + Adaptive EQ", "Battery": "6h + 24h case", "Resistance": "IPX4"},
+    },
+    {
+        "id": "airpods-pro-2nd-gen", "name": "Apple AirPods Pro (2nd Gen)", "cat": "accessories", "brand": "audio",
+        "thumb": "cable", "tint": "blue", "price": 250000,
+        "rating": 4.9, "review_count": 112, "is_featured": True, "badge": "Best Seller",
+        "description": "Active Noise Cancellation, Transparency mode and H2 chip. Brand new, sealed.",
+        "specs": {"Audio": "ANC + Transparency + Spatial Audio", "Battery": "6h + 24h case", "Resistance": "IP54"},
+    },
+    {
+        "id": "airpods-max", "name": "Apple AirPods Max", "cat": "accessories", "brand": "audio",
+        "thumb": "cable", "tint": "blue", "price": 480000,
+        "rating": 4.8, "review_count": 41,
+        "description": "Premium over-ear headphones with Active Noise Cancellation and Spatial Audio.",
+        "specs": {"Audio": "ANC + Spatial Audio", "Battery": "20h ANC on", "Driver": "40mm custom"},
+    },
+
+    # ── Gadgets ───────────────────────────────────────────────────────────────
+    {
+        "id": "pocket-wifi-airtel", "name": "Airtel Pocket WiFi", "cat": "accessories", "brand": "gadgets",
+        "thumb": "powerbank", "tint": "orange", "price": 38000,
+        "rating": 4.3, "review_count": 47,
+        "description": "Create a personal 4G hotspot anywhere. Supports up to 10 devices simultaneously.",
+        "specs": {"Network": "4G LTE", "Devices": "Up to 10", "Battery": "3000mAh"},
+    },
+    {
+        "id": "starlink-gen3", "name": "Starlink Gen 3 Kit", "cat": "accessories", "brand": "gadgets",
+        "thumb": "powerbank", "tint": "indigo", "price": 480000,
+        "rating": 4.8, "review_count": 19, "is_featured": True, "badge": "New",
+        "description": "Elon Musk's satellite internet. Blazing speeds anywhere in Nigeria — dish, router and cables included.",
+        "specs": {"Speed": "100–200 Mbps", "Latency": "20–40ms", "Includes": "Dish + Router + Cables"},
+    },
+    {
+        "id": "ps5-slim", "name": "Sony PS5 Slim", "cat": "accessories", "brand": "gadgets",
+        "thumb": "powerbank", "tint": "indigo", "price": 680000,
+        "rating": 4.9, "review_count": 63, "is_featured": True, "badge": "Best Seller",
+        "description": "The compact PS5 Slim disc edition. Brand new, sealed. Nigeria warranty.",
+        "specs": {"Storage": "1TB SSD", "Resolution": "4K 120fps", "Form": "Slim disc edition"},
+    },
+
+    # ── One-time offers ───────────────────────────────────────────────────────
+    {
+        "id": "ot-iphone-14-promax", "name": "iPhone 14 Pro Max", "cat": "phones", "brand": "iphone",
+        "thumb": "phone", "tint": "blue", "price": 780000, "old_price": 980000,
+        "status": "Nigeria-Used", "is_one_time": True, "stock": 1, "rating": 4.5, "review_count": 6,
+        "one_time_note": "Tiny hairline scratch on back glass. Screen flawless. Battery 86%.",
+        "description": "One unit only. A clean Nigeria-used Pro Max at a price that won't repeat.",
+        "specs": {"Storage": "256GB", "Display": '6.7" ProMotion', "Chip": "A16 Bionic", "Camera": "48MP Triple"},
+        "series": "iPhone 14",
+    },
+    {
+        "id": "ot-iphone-13-promax", "name": "iPhone 13 Pro Max", "cat": "phones", "brand": "iphone",
+        "thumb": "phone", "tint": "blue", "price": 560000, "old_price": 700000,
+        "status": "Nigeria-Used", "is_one_time": True, "stock": 1, "rating": 4.5, "review_count": 7,
+        "one_time_note": "Aftermarket screen (excellent quality). Body clean. Battery 88%.",
+        "description": "One unit only. Big-battery Pro Max with a quality replacement screen.",
+        "specs": {"Storage": "128GB", "Display": '6.7" ProMotion', "Chip": "A15 Bionic", "Camera": "12MP Triple"},
+        "series": "iPhone 13",
+    },
+    {
+        "id": "ot-galaxy-s23-ultra", "name": "Galaxy S23 Ultra", "cat": "phones", "brand": "samsung",
+        "thumb": "phone", "tint": "indigo", "price": 820000, "old_price": 1000000,
+        "status": "Foreign Used", "is_one_time": True, "stock": 1, "rating": 4.4, "review_count": 4,
+        "one_time_note": "Faint single pixel dot, invisible in normal use. S Pen included.",
+        "description": "One unit only. Foreign Used Ultra with a barely-there blemish and a big discount.",
+        "specs": {"Storage": "256GB", "Display": '6.8" QHD+ AMOLED', "Chip": "Snapdragon 8 Gen 2", "Camera": "200MP Quad"},
+        "series": "Galaxy S23",
+    },
+    {
+        "id": "ot-macbook-air-m1", "name": "MacBook Air M1", "cat": "laptops", "brand": "apple",
+        "thumb": "laptop", "tint": "indigo", "price": 650000, "old_price": 820000,
+        "status": "Nigeria-Used", "is_one_time": True, "stock": 1, "rating": 4.6, "review_count": 9,
+        "one_time_note": "Small dent on lid corner. Battery cycle count 210. Runs perfectly.",
+        "description": "One unit only. A silent, fast M1 Air with a cosmetic dent — pure value.",
+        "specs": {"CPU": "Apple M1", "RAM": "8GB", "Storage": "256GB SSD", "Display": '13.3" Retina'},
+        "series": "MacBook Air",
+    },
+    {
+        "id": "ot-hp-elitebook-dent", "name": "HP EliteBook 840 (ex-UK)", "cat": "laptops", "brand": "hp",
+        "thumb": "laptop", "tint": "blue", "price": 360000, "old_price": 520000,
+        "status": "Foreign Used", "is_one_time": True, "stock": 1, "rating": 4.2, "review_count": 3,
+        "one_time_note": "Visible dent on palm rest. Fully functional, keyboard perfect.",
+        "description": "One unit only. Workhorse EliteBook with a battle scar and a steep markdown.",
+        "specs": {"CPU": "Intel Core i7-10610U", "RAM": "16GB", "Storage": "512GB SSD", "Display": '14" FHD'},
+        "series": "EliteBook",
+    },
+    {
+        "id": "ot-galaxy-zfold4", "name": "Galaxy Z Fold4", "cat": "phones", "brand": "samsung",
+        "thumb": "phone", "tint": "indigo", "price": 720000, "old_price": 950000,
+        "status": "Foreign Used", "is_one_time": True, "stock": 1, "rating": 4.3, "review_count": 5,
+        "one_time_note": "Light crease wear (normal for folds). Hinge tight, no dead pixels.",
+        "description": "One unit only. A foldable tablet-phone at an unrepeatable price.",
+        "specs": {"Storage": "256GB", "Display": '7.6" Foldable AMOLED', "Chip": "Snapdragon 8+ Gen 1", "Cover": '6.2" AMOLED'},
+        "series": "Galaxy Z Fold",
+    },
 ]
 
+
+# ── CSV loaders ───────────────────────────────────────────────────────────────
+
+KWISEAPI_DIR = os.path.dirname(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
+
+
+def load_iphone_products() -> list[dict]:
+    products = []
+    csv_path = os.path.join(KWISEAPI_DIR, "data", "iphone_catalog_2.csv")
+    with open(csv_path, newline="", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            model    = row["model_name"]
+            capacity = row["capacity"]
+            price    = int(row["price"])
+            status   = row["status"]
+            colors   = [c.strip() for c in row["colors"].split("|")]
+            sp       = IPHONE_SPECS.get(model, {})
+            full_name = f"{model} {capacity}"
+            slug      = slugify(full_name)
+            products.append({
+                "id":           slug,
+                "name":         full_name,
+                "series":       sp.get("series", model),
+                "cat":          "phones",
+                "brand":        "iphone",
+                "thumb":        "phone",
+                "tint":         "blue",
+                "status":       status,
+                "price":        price,
+                "colors":       colors,
+                "description":  _iphone_description(model, capacity, colors, sp, status),
+                "rating":       sp.get("rating", 4.5),
+                "review_count": sp.get("reviews", 0),
+                "is_featured":  sp.get("featured", False),
+                "badge":        sp.get("badge", ""),
+                "specs": {
+                    "Storage": capacity,
+                    "Chip":    sp.get("chip", ""),
+                    "Display": sp.get("display", ""),
+                    "Camera":  sp.get("camera", ""),
+                    "Battery": sp.get("battery", ""),
+                },
+            })
+    return products
+
+
+def load_samsung_products() -> list[dict]:
+    products = []
+    csv_path = os.path.join(KWISEAPI_DIR, "data", "samsung_catalog.csv")
+    with open(csv_path, newline="", encoding="utf-8") as f:
+        for row in csv.DictReader(f):
+            model    = row["model_name"]
+            capacity = row["capacity"]
+            price    = int(row["price"])
+            status   = row["status"]
+            colors   = [c.strip() for c in row["colors"].split("|")]
+            sp       = SAMSUNG_SPECS.get(model, {})
+            full_name = f"{model} {capacity}"
+            slug      = slugify(full_name)
+            products.append({
+                "id":           slug,
+                "name":         full_name,
+                "series":       sp.get("series", model),
+                "cat":          "phones",
+                "brand":        "samsung",
+                "thumb":        "phone",
+                "tint":         "indigo",
+                "status":       status,
+                "price":        price,
+                "colors":       colors,
+                "description":  _samsung_description(model, capacity, colors, sp, status),
+                "rating":       sp.get("rating", 4.5),
+                "review_count": sp.get("reviews", 0),
+                "is_featured":  sp.get("featured", False),
+                "badge":        sp.get("badge", ""),
+                "specs": {
+                    "Storage": capacity,
+                    "Chip":    sp.get("chip", ""),
+                    "Display": sp.get("display", ""),
+                    "Camera":  sp.get("camera", ""),
+                    "Battery": sp.get("battery", ""),
+                },
+            })
+    return products
+
+
+# ── Management command ────────────────────────────────────────────────────────
 
 class Command(BaseCommand):
     help = "Seed the database with the initial Kwise World catalog."
 
     def handle(self, *args, **options):
-        cat_map = {}
+        cat_map   = {}
         brand_map = {}
 
         for c_data in CATEGORIES:
@@ -110,7 +920,7 @@ class Command(BaseCommand):
                 defaults={k: v for k, v in c_data.items() if k != "slug"},
             )
             cat_map[cat.slug] = cat
-            c_data["brands"] = brands_data  # restore
+            c_data["brands"] = brands_data  # restore for idempotency
 
             for b_data in brands_data:
                 brand, _ = Brand.objects.update_or_create(
@@ -121,34 +931,38 @@ class Command(BaseCommand):
 
         self.stdout.write(f"  {Category.objects.count()} categories, {Brand.objects.count()} brands")
 
-        for p_data in PRODUCTS:
-            specs = p_data.pop("specs", {})
-            cat_slug = p_data.pop("cat")
+        iphone_products  = load_iphone_products()
+        samsung_products = load_samsung_products()
+        all_products     = iphone_products + samsung_products + PRODUCTS
+
+        for p_data in all_products:
+            specs      = p_data.pop("specs", {})
+            cat_slug   = p_data.pop("cat")
             brand_slug = p_data.pop("brand")
-            cat = cat_map[cat_slug]
-            brand = brand_map[(cat_slug, brand_slug)]
+            cat        = cat_map[cat_slug]
+            brand      = brand_map[(cat_slug, brand_slug)]
 
             product, _ = Product.objects.update_or_create(
                 slug=p_data["id"],
                 defaults={
-                    "name": p_data["name"],
-                    "category": cat,
-                    "brand": brand,
-                    "thumb": p_data.get("thumb", "phone"),
-                    "tint": p_data.get("tint", "blue"),
-                    "price": p_data["price"],
-                    "old_price": p_data.get("old_price"),
-                    "status": p_data.get("status", "Brand New"),
-                    "rating": p_data.get("rating", 4.6),
-                    "review_count": p_data.get("review_count", 0),
-                    "is_featured": p_data.get("is_featured", False),
-                    "badge": p_data.get("badge", ""),
-                    "is_one_time": p_data.get("is_one_time", False),
-                    "stock": p_data.get("stock", 25),
-                    "description": p_data.get("description", ""),
+                    "name":          p_data["name"],
+                    "category":      cat,
+                    "brand":         brand,
+                    "thumb":         p_data.get("thumb", "phone"),
+                    "tint":          p_data.get("tint", "blue"),
+                    "price":         p_data["price"],
+                    "old_price":     p_data.get("old_price"),
+                    "status":        p_data.get("status", "Brand New"),
+                    "rating":        p_data.get("rating", 4.6),
+                    "review_count":  p_data.get("review_count", 0),
+                    "is_featured":   p_data.get("is_featured", False),
+                    "badge":         p_data.get("badge", ""),
+                    "is_one_time":   p_data.get("is_one_time", False),
+                    "stock":         p_data.get("stock", 25),
+                    "description":   p_data.get("description", ""),
                     "one_time_note": p_data.get("one_time_note", ""),
-                    "colors": p_data.get("colors", []),
-                    "series": p_data.get("series", ""),
+                    "colors":        p_data.get("colors", []),
+                    "series":        p_data.get("series", ""),
                 },
             )
 
@@ -156,5 +970,9 @@ class Command(BaseCommand):
             for order, (key, value) in enumerate(specs.items()):
                 ProductSpec.objects.create(product=product, key=key, value=value, order=order)
 
-        self.stdout.write(f"  {Product.objects.count()} products")
+        self.stdout.write(
+            f"  {Product.objects.count()} products "
+            f"({len(iphone_products)} iPhone + {len(samsung_products)} Samsung from CSV, "
+            f"{len(PRODUCTS)} inline)"
+        )
         self.stdout.write(self.style.SUCCESS("Seed complete."))
