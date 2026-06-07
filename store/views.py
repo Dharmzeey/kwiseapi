@@ -14,7 +14,7 @@ from rest_framework.generics import (
 from rest_framework.permissions import AllowAny, IsAuthenticated, BasePermission
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from django.db.models import Q, Sum
+from django.db.models import Q, Sum, F
 
 from .models import Category, Brand, Product, ProductSpec, Order
 from .serializers import (
@@ -89,10 +89,11 @@ class ProductListView(ListAPIView):
                 pass
 
         sort = p.get("sort", "featured")
+        if sort == "rating":
+            return qs.order_by(F("rating").desc(nulls_last=True))
         order_map = {
             "low": ["price"],
             "high": ["-price"],
-            "rating": ["-rating"],
         }
         return qs.order_by(*order_map.get(sort, ["-is_featured", "name"]))
 
@@ -158,11 +159,7 @@ class ReviewCreateView(GenericAPIView):
         serializer = self.get_serializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
         serializer.save(product=product)
-
-        reviews = product.reviews.all()
-        product.rating = round(sum(r.rating for r in reviews) / reviews.count(), 1)
-        product.review_count = reviews.count()
-        product.save(update_fields=["rating", "review_count"])
+        product.refresh_rating()
 
         return Response(serializer.data, status=status.HTTP_201_CREATED)
 

@@ -75,8 +75,8 @@ class Product(models.Model):
     # Condition
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="Foreign Used")
 
-    # Ratings (denormalised for query speed)
-    rating = models.DecimalField(max_digits=3, decimal_places=1, default=4.6)
+    # Ratings — computed from Review records; null until first review is submitted
+    rating = models.DecimalField(max_digits=3, decimal_places=1, null=True, blank=True)
     review_count = models.PositiveIntegerField(default=0)
 
     # Flags
@@ -110,6 +110,14 @@ class Product(models.Model):
                 n += 1
             self.slug = slug
         super().save(*args, **kwargs)
+
+    def refresh_rating(self):
+        """Recompute rating and review_count from actual Review records and save."""
+        from django.db.models import Avg, Count
+        agg = self.reviews.aggregate(avg=Avg("rating"), cnt=Count("id"))
+        self.rating = round(agg["avg"], 1) if agg["avg"] is not None else None
+        self.review_count = agg["cnt"]
+        self.save(update_fields=["rating", "review_count"])
 
     @property
     def sold_out(self):
