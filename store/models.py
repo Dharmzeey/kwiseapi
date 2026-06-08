@@ -72,6 +72,20 @@ class Product(models.Model):
     price = models.PositiveIntegerField()  # in Naira
     old_price = models.PositiveIntegerField(null=True, blank=True)
 
+    # Optional link to a swap StorageVariant — when set, price is kept in sync
+    # with StorageVariant.uk_end_user_price_ngn (the "Foreign Used" market price).
+    storage_variant = models.OneToOneField(
+        "swap.StorageVariant",
+        null=True,
+        blank=True,
+        on_delete=models.SET_NULL,
+        related_name="store_product",
+        help_text=(
+            "Link to the swap catalog variant whose uk_end_user_price_ngn "
+            "drives this product's price. Leave blank for non-iPhone products."
+        ),
+    )
+
     # Condition
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="Foreign Used")
 
@@ -109,6 +123,9 @@ class Product(models.Model):
                 slug = f"{base}-{n}"
                 n += 1
             self.slug = slug
+        if self.storage_variant_id:
+            # Keep price in sync with the linked swap variant's end-user price.
+            self.price = self.storage_variant.uk_end_user_price_ngn
         super().save(*args, **kwargs)
 
     def refresh_rating(self):
