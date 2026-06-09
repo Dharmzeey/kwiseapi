@@ -21,7 +21,7 @@ class ProductSpecInline(admin.TabularInline):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ["name", "slug", "category", "brand", "price", "status", "is_featured", "is_one_time", "stock"]
+    list_display = ["name", "slug", "category", "brand", "price", "storage_variant", "status", "is_featured", "is_one_time", "stock"]
     list_filter = ["category", "brand", "status", "is_featured", "is_one_time"]
     search_fields = ["name", "slug"]
     inlines = [ProductSpecInline]
@@ -29,7 +29,7 @@ class ProductAdmin(admin.ModelAdmin):
     fieldsets = [
         ("Identity", {"fields": ["name", "slug", "category", "brand"]}),
         ("Image", {"fields": ["image", "thumb", "tint"]}),
-        ("Pricing", {"fields": ["price", "old_price"]}),
+        ("Pricing", {"fields": ["storage_variant", "price", "old_price"]}),
         ("Details", {"fields": ["status", "badge", "is_featured", "is_one_time", "stock", "colors"]}),
         ("Content", {"fields": ["description", "one_time_note"]}),
         ("Meta", {"fields": ["rating", "review_count", "created_at", "updated_at"]}),

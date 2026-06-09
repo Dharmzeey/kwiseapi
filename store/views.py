@@ -3,6 +3,8 @@ Kwise World — store views.
 
 Uses DRF generic class-based views.  No ViewSets, no Routers.
 """
+from django.http import HttpResponse
+from django.views import View
 from rest_framework import status
 from rest_framework.generics import (
     ListAPIView,
@@ -16,7 +18,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.db.models import Q, Sum, F
 
-from .models import Category, Brand, Product, ProductSpec, Order
+from .models import Category, Brand, Product, ProductSpec, Order, Review
 from .serializers import (
     CategorySerializer,
     ProductListSerializer,
@@ -144,6 +146,63 @@ class ProductRelatedView(ListAPIView):
 
 
 # ── Reviews ───────────────────────────────────────────────────────────────────
+
+class ReviewListView(ListAPIView):
+    """GET /api/reviews/?limit=6  — verified reviews for the homepage."""
+    serializer_class = ReviewSerializer
+    permission_classes = [AllowAny]
+    pagination_class = None
+
+    def get_queryset(self):
+        limit = int(self.request.query_params.get("limit", 6))
+        return (
+            Review.objects
+            .filter(is_verified=True)
+            .select_related("product")
+            .order_by("-created_at")[:limit]
+        )
+
+
+class AdminReviewListView(ListAPIView):
+    """GET /api/admin/reviews/?verified=0|1"""
+    serializer_class = ReviewSerializer
+    permission_classes = [IsSuperUser]
+    pagination_class = None
+
+    def get_queryset(self):
+        qs = Review.objects.select_related("product").order_by("-created_at")
+        v = self.request.query_params.get("verified")
+        if v == "0":
+            qs = qs.filter(is_verified=False)
+        elif v == "1":
+            qs = qs.filter(is_verified=True)
+        return qs
+
+
+class AdminReviewVerifyView(APIView):
+    """PATCH /api/admin/reviews/<pk>/verify/"""
+    permission_classes = [IsSuperUser]
+
+    def patch(self, request, pk):
+        try:
+            review = Review.objects.select_related("product").get(pk=pk)
+        except Review.DoesNotExist:
+            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+        review.is_verified = not review.is_verified
+        review.save(update_fields=["is_verified"])
+        review.product.refresh_rating()
+        return Response(ReviewSerializer(review).data)
+
+    def delete(self, request, pk):
+        try:
+            review = Review.objects.get(pk=pk)
+        except Review.DoesNotExist:
+            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+        product = review.product
+        review.delete()
+        product.refresh_rating()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
 
 class ReviewCreateView(GenericAPIView):
     """POST /api/products/<id>/reviews/"""

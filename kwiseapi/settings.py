@@ -25,7 +25,7 @@ INSTALLED_APPS = [
     "corsheaders",
     # Local
     "users",
-    "store",
+    "store.apps.StoreConfig",
     "swap",
 ]
 

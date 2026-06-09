@@ -6,6 +6,7 @@ from .views import (
     ProductListView,
     ProductDetailView,
     ProductRelatedView,
+    ReviewListView,
     ReviewCreateView,
     CartVerifyView,
     OrderCreateView,
@@ -19,6 +20,8 @@ from .views import (
     AdminProductSpecView,
     AdminOrderListView,
     AdminOrderUpdateView,
+    AdminReviewListView,
+    AdminReviewVerifyView,
 )
 
 urlpatterns = [
@@ -31,6 +34,9 @@ urlpatterns = [
     path("products/<str:id>/", ProductDetailView.as_view(), name="product-detail"),
     path("products/<str:id>/related/", ProductRelatedView.as_view(), name="product-related"),
     path("products/<str:id>/reviews/", ReviewCreateView.as_view(), name="product-review-create"),
+
+    # Reviews
+    path("reviews/", ReviewListView.as_view(), name="review-list"),
 
     # Cart
     path("cart/verify/", CartVerifyView.as_view(), name="cart-verify"),
@@ -48,4 +54,6 @@ urlpatterns = [
     path("admin/products/<slug:slug>/specs/", AdminProductSpecView.as_view(), name="admin-product-specs"),
     path("admin/orders/", AdminOrderListView.as_view(), name="admin-order-list"),
     path("admin/orders/<str:reference>/status/", AdminOrderUpdateView.as_view(), name="admin-order-status"),
+    path("admin/reviews/", AdminReviewListView.as_view(), name="admin-review-list"),
+    path("admin/reviews/<int:pk>/verify/", AdminReviewVerifyView.as_view(), name="admin-review-verify"),
 ]

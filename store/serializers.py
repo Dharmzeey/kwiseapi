@@ -24,18 +24,21 @@ class ProductSpecSerializer(serializers.ModelSerializer):
 
 
 class ReviewSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(source="product.name", read_only=True)
+
     class Meta:
         model = Review
-        fields = ["id", "reviewer_name", "rating", "text", "is_verified", "created_at"]
-        read_only_fields = ["id", "is_verified", "created_at"]
+        fields = ["id", "reviewer_name", "rating", "text", "is_verified", "created_at", "product_name"]
+        read_only_fields = ["id", "reviewer_name", "is_verified", "created_at", "product_name"]
 
     def create(self, validated_data):
         request = self.context.get("request")
         if request and request.user.is_authenticated:
             validated_data["user"] = request.user
-            if not validated_data.get("reviewer_name"):
-                validated_data["reviewer_name"] = request.user.full_name or request.user.email
-            validated_data["is_verified"] = True
+            user = request.user
+            validated_data["reviewer_name"] = (
+                f"{user.first_name} {user.last_name}".strip() or user.email
+            )
         return super().create(validated_data)
 
 
