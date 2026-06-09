@@ -3,8 +3,6 @@ Kwise World — store views.
 
 Uses DRF generic class-based views.  No ViewSets, no Routers.
 """
-from django.http import HttpResponse
-from django.views import View
 from rest_framework import status
 from rest_framework.generics import (
     ListAPIView,
