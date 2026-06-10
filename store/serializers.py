@@ -1,6 +1,12 @@
 """Kwise World — store serializers."""
+import random
+import string
+import json
+import urllib.request
+import urllib.error
+from django.conf import settings as django_settings
 from rest_framework import serializers
-from .models import Category, Brand, Product, ProductSpec, Review, Order, OrderItem
+from .models import Category, Brand, Product, ProductSpec, Review, Order, OrderItem, PendingTransaction
 
 
 class BrandSerializer(serializers.ModelSerializer):
@@ -141,9 +147,14 @@ class OrderCreateSerializer(serializers.Serializer):
         return validated
 
     def create(self, validated_data):
-        import random
-        import string
-
+        """
+        Does NOT create an Order yet.
+        1. Computes totals and generates a reference.
+        2. Saves a PendingTransaction with the cart snapshot.
+        3. Calls Paystack to initialize the transaction.
+        4. Returns a lightweight object with reference + authorization_url.
+           The real Order is created by the webhook after payment succeeds.
+        """
         request = self.context.get("request")
         items = validated_data["items"]
 
@@ -153,37 +164,79 @@ class OrderCreateSerializer(serializers.Serializer):
         ref = "KW-" + "".join(random.choices(string.digits, k=6))
 
         user = request.user if request and request.user.is_authenticated else None
-        # Use profile data when authenticated, fall back to guest fields
         guest_name = f"{user.first_name} {user.last_name}".strip() if user else validated_data.get("guest_name", "")
         guest_email = user.email if user else validated_data.get("guest_email", "")
         guest_phone = getattr(user, "phone", "") or validated_data.get("guest_phone", "")
 
-        order = Order.objects.create(
+        # Snapshot the cart so the webhook can recreate the order
+        cart_data = [
+            {
+                "product_slug": i["product"].slug,
+                "product_name": i["product"].name,
+                "unit_price": i["product"].price,
+                "quantity": i["quantity"],
+                "is_one_time": i["product"].is_one_time,
+            }
+            for i in items
+        ]
+
+        print("Creating pending transaction with cart data:", cart_data)
+
+        pending = PendingTransaction.objects.create(
             reference=ref,
             user=user,
             guest_name=guest_name,
             guest_email=guest_email,
             guest_phone=guest_phone,
             delivery_address=validated_data.get("delivery_address", ""),
+            cart_data=cart_data,
             subtotal=subtotal,
             delivery_fee=delivery_fee,
             total=total,
         )
 
-        for item in items:
-            product = item["product"]
-            OrderItem.objects.create(
-                order=order,
-                product=product,
-                product_name=product.name,
-                unit_price=product.price,
-                quantity=item["quantity"],
-            )
-            if product.is_one_time:
-                product.stock = max(0, product.stock - item["quantity"])
-                product.save(update_fields=["stock"])
+        # ── Initialize Paystack transaction ────────────────────────────────────
+        callback_url = f"{django_settings.FRONTEND_BASE_URL}/order-confirmed?ref={ref}"
+        payload = json.dumps({
+            "email": guest_email,
+            "amount": total * 100,  # kobo
+            "reference": ref,
+            "callback_url": callback_url,
+            "metadata": {
+                "order_reference": ref,
+                "customer_name": guest_name,
+                "customer_phone": guest_phone,
+            },
+        }).encode()
 
-        return order
+        req = urllib.request.Request(
+            f"{django_settings.PAYSTACK_BASE_URL}/transaction/initialize",
+            data=payload,
+            headers={
+                "Authorization": f"Bearer {django_settings.PAYSTACK_SECRET_KEY}",
+                "Content-Type": "application/json",
+                "User-Agent": "KwiseWorld/1.0",
+                "Accept": "application/json",
+            },
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=10) as resp:
+                ps_data = json.loads(resp.read())
+            authorization_url = ps_data["data"]["authorization_url"]
+        except urllib.error.HTTPError as e:
+            body = e.read().decode("utf-8", errors="replace")
+            pending.delete()
+            raise serializers.ValidationError(
+                {"detail": f"Payment gateway error — Paystack returned {e.code}: {body}"}
+            )
+        except Exception as e:
+            pending.delete()
+            raise serializers.ValidationError(
+                {"detail": f"Payment gateway error — {e}"}
+            )
+
+        pending.authorization_url = authorization_url
+        return pending
 
 
 class OrderSerializer(serializers.ModelSerializer):
@@ -192,10 +245,11 @@ class OrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = [
-            "reference", "status",
+            "reference", "status", "payment_status",
             "subtotal", "delivery_fee", "total",
             "guest_name", "guest_email", "delivery_address",
             "items", "created_at",
+            "confirmed_at", "dispatched_at", "delivered_at",
         ]
 
 
@@ -248,8 +302,9 @@ class AdminOrderSerializer(serializers.ModelSerializer):
     class Meta:
         model = Order
         fields = [
-            "id", "reference", "status",
+            "id", "reference", "status", "payment_status",
             "subtotal", "delivery_fee", "total",
             "guest_name", "guest_email", "guest_phone", "delivery_address",
             "items", "created_at",
+            "confirmed_at", "dispatched_at", "delivered_at",
         ]

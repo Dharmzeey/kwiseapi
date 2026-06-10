@@ -12,6 +12,7 @@ from .views import (
     OrderCreateView,
     OrderDetailView,
     MyOrderListView,
+    PaystackWebhookView,
     # Admin
     AdminStatsView,
     AdminProductListView,
@@ -45,6 +46,9 @@ urlpatterns = [
     path("orders/", OrderCreateView.as_view(), name="order-create"),
     path("orders/mine/", MyOrderListView.as_view(), name="order-mine"),
     path("orders/<str:reference>/", OrderDetailView.as_view(), name="order-detail"),
+
+    # Payments
+    path("payments/webhook/", PaystackWebhookView.as_view(), name="paystack-webhook"),
 
     # Admin API
     path("admin/stats/", AdminStatsView.as_view(), name="admin-stats"),

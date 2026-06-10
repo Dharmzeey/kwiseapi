@@ -197,6 +197,12 @@ class Order(models.Model):
         ("cancelled", "Cancelled"),
     ]
 
+    PAYMENT_STATUS_CHOICES = [
+        ("unpaid", "Unpaid"),
+        ("paid", "Paid"),
+        ("failed", "Failed"),
+    ]
+
     reference = models.CharField(max_length=20, unique=True)
     user = models.ForeignKey(
         settings.AUTH_USER_MODEL,
@@ -209,10 +215,15 @@ class Order(models.Model):
     guest_phone = models.CharField(max_length=20, blank=True)
     delivery_address = models.TextField(blank=True)
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
+    payment_status = models.CharField(max_length=10, choices=PAYMENT_STATUS_CHOICES, default="unpaid")
 
     subtotal = models.PositiveIntegerField()
     delivery_fee = models.PositiveIntegerField(default=0)
     total = models.PositiveIntegerField()
+
+    confirmed_at = models.DateTimeField(null=True, blank=True)
+    dispatched_at = models.DateTimeField(null=True, blank=True)
+    delivered_at = models.DateTimeField(null=True, blank=True)
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
@@ -241,3 +252,30 @@ class OrderItem(models.Model):
     @property
     def line_total(self):
         return self.unit_price * self.quantity
+
+
+class PendingTransaction(models.Model):
+    """
+    Holds cart + delivery data while the user is on the Paystack payment page.
+    Created when checkout is submitted; converted to a real Order by the webhook
+    once payment succeeds; then deleted.
+    """
+    reference = models.CharField(max_length=20, unique=True)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        null=True, blank=True,
+        on_delete=models.SET_NULL,
+    )
+    guest_name = models.CharField(max_length=150, blank=True)
+    guest_email = models.EmailField(blank=True)
+    guest_phone = models.CharField(max_length=20, blank=True)
+    delivery_address = models.TextField(blank=True)
+    # Serialised cart: [{"product_slug": "...", "quantity": 1, "unit_price": 120000}, ...]
+    cart_data = models.JSONField()
+    subtotal = models.PositiveIntegerField()
+    delivery_fee = models.PositiveIntegerField(default=0)
+    total = models.PositiveIntegerField()
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Pending {self.reference}"

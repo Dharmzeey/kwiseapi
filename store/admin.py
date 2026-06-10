@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Category, Brand, Product, ProductSpec, Review, Order, OrderItem
+from .models import Category, Brand, Product, ProductSpec, Review, Order, OrderItem, PendingTransaction
 
 
 @admin.register(Category)
@@ -50,8 +50,18 @@ class OrderItemInline(admin.TabularInline):
 
 @admin.register(Order)
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ["reference", "status", "total", "created_at"]
-    list_filter = ["status"]
+    list_display = ["reference", "status", "payment_status", "total", "confirmed_at", "dispatched_at", "delivered_at", "created_at"]
+    list_filter = ["status", "payment_status"]
     search_fields = ["reference", "guest_email"]
-    readonly_fields = ["reference", "subtotal", "delivery_fee", "total", "created_at"]
+    readonly_fields = ["reference", "payment_status", "subtotal", "delivery_fee", "total",
+                       "confirmed_at", "dispatched_at", "delivered_at", "created_at"]
     inlines = [OrderItemInline]
+
+
+@admin.register(PendingTransaction)
+class PendingTransactionAdmin(admin.ModelAdmin):
+    list_display = ["reference", "guest_email", "total", "created_at"]
+    search_fields = ["reference", "guest_email"]
+    readonly_fields = ["reference", "user", "guest_name", "guest_email", "guest_phone",
+                       "delivery_address", "cart_data", "subtotal", "delivery_fee", "total", "created_at"]
+

@@ -3,6 +3,14 @@ Kwise World — store views.
 
 Uses DRF generic class-based views.  No ViewSets, no Routers.
 """
+import hashlib
+import hmac
+import json
+import urllib.request
+from django.conf import settings as django_settings
+from django.utils import timezone
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework import status
 from rest_framework.generics import (
     ListAPIView,
@@ -16,7 +24,7 @@ from rest_framework.response import Response
 from rest_framework.views import APIView
 from django.db.models import Q, Sum, F
 
-from .models import Category, Brand, Product, ProductSpec, Order, Review
+from .models import Category, Brand, Product, ProductSpec, Order, OrderItem, PendingTransaction, Review
 from .serializers import (
     CategorySerializer,
     ProductListSerializer,
@@ -253,9 +261,14 @@ class OrderCreateView(GenericAPIView):
     def post(self, request):
         serializer = self.get_serializer(data=request.data, context={"request": request})
         serializer.is_valid(raise_exception=True)
-        order = serializer.save()
+        pending = serializer.save()
+        print(pending)
         return Response(
-            {"reference": order.reference, "total": order.total, "status": order.status},
+            {
+                "reference": pending.reference,
+                "total": pending.total,
+                "authorization_url": getattr(pending, "authorization_url", None),
+            },
             status=status.HTTP_201_CREATED,
         )
 
@@ -275,6 +288,110 @@ class MyOrderListView(ListAPIView):
 
     def get_queryset(self):
         return Order.objects.filter(user=self.request.user).prefetch_related("items")
+
+
+# ── Paystack webhook ──────────────────────────────────────────────────────────
+
+@method_decorator(csrf_exempt, name="dispatch")
+class PaystackWebhookView(APIView):
+    """
+    POST /api/payments/webhook/
+    Paystack calls this after every payment event.
+    Only on charge.success do we:
+      1. Verify HMAC signature.
+      2. Confirm the transaction server-to-server with Paystack.
+      3. Look up the PendingTransaction by reference.
+      4. Create the real Order + OrderItems from the snapshot.
+      5. Delete the PendingTransaction.
+    Orders are therefore only ever created after successful payment.
+    """
+    permission_classes = [AllowAny]
+
+    def post(self, request):
+        # 1. Verify Paystack HMAC signature
+        sig = request.headers.get("x-paystack-signature", "")
+        secret = django_settings.PAYSTACK_SECRET_KEY.encode()
+        digest = hmac.new(secret, msg=request.body, digestmod=hashlib.sha512).hexdigest()
+        if not hmac.compare_digest(digest, sig):
+            return Response({"detail": "Invalid signature."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # 2. Parse event — only care about charge.success
+        try:
+            event = json.loads(request.body)
+        except json.JSONDecodeError:
+            return Response({"detail": "Bad JSON."}, status=status.HTTP_400_BAD_REQUEST)
+
+        if event.get("event") != "charge.success":
+            return Response({"detail": "Ignored."}, status=status.HTTP_200_OK)
+
+        reference = event.get("data", {}).get("reference", "")
+        if not reference:
+            return Response({"detail": "No reference."}, status=status.HTTP_400_BAD_REQUEST)
+
+        # 3. Verify server-to-server with Paystack (never trust webhook payload alone)
+        try:
+            verify_req = urllib.request.Request(
+                f"{django_settings.PAYSTACK_BASE_URL}/transaction/verify/{reference}",
+                headers={
+                    "Authorization": f"Bearer {django_settings.PAYSTACK_SECRET_KEY}",
+                    "User-Agent": "KwiseWorld/1.0",
+                    "Accept": "application/json",
+                },
+            )
+            with urllib.request.urlopen(verify_req, timeout=10) as resp:
+                verify_data = json.loads(resp.read())
+        except Exception:
+            return Response({"detail": "Paystack verify failed."}, status=status.HTTP_502_BAD_GATEWAY)
+
+        if verify_data.get("data", {}).get("status") != "success":
+            return Response({"detail": "Payment not successful."}, status=status.HTTP_200_OK)
+
+        # 4. Idempotency — if order already exists (webhook fired twice), return OK
+        if Order.objects.filter(reference=reference).exists():
+            return Response({"detail": "Already processed."}, status=status.HTTP_200_OK)
+
+        # 5. Look up the pending transaction
+        try:
+            pending = PendingTransaction.objects.get(reference=reference)
+        except PendingTransaction.DoesNotExist:
+            return Response({"detail": "Pending transaction not found."}, status=status.HTTP_404_NOT_FOUND)
+
+        # 6. Create the real Order from the snapshot
+        order = Order.objects.create(
+            reference=pending.reference,
+            user=pending.user,
+            guest_name=pending.guest_name,
+            guest_email=pending.guest_email,
+            guest_phone=pending.guest_phone,
+            delivery_address=pending.delivery_address,
+            subtotal=pending.subtotal,
+            delivery_fee=pending.delivery_fee,
+            total=pending.total,
+            status="confirmed",
+            payment_status="paid",
+            confirmed_at=timezone.now(),
+        )
+
+        for item in pending.cart_data:
+            try:
+                product = Product.objects.get(slug=item["product_slug"])
+            except Product.DoesNotExist:
+                continue
+            OrderItem.objects.create(
+                order=order,
+                product=product,
+                product_name=item["product_name"],
+                unit_price=item["unit_price"],
+                quantity=item["quantity"],
+            )
+            if item.get("is_one_time"):
+                product.stock = max(0, product.stock - item["quantity"])
+                product.save(update_fields=["stock"])
+
+        # 7. Clean up the pending record
+        pending.delete()
+
+        return Response({"detail": "OK."}, status=status.HTTP_200_OK)
 
 
 # ── Admin views (superuser only) ──────────────────────────────────────────────
@@ -404,10 +521,14 @@ class AdminOrderListView(ListAPIView):
 
 
 class AdminOrderUpdateView(APIView):
-    """PATCH /api/admin/orders/<reference>/status/ — update order status."""
+    """PATCH /api/admin/orders/<reference>/status/ — update order status.
+
+    'confirmed' is set exclusively by the Paystack webhook; it cannot be
+    set here.  Only dispatched / delivered / cancelled are admin-settable.
+    """
     permission_classes = [IsSuperUser]
 
-    VALID_STATUSES = {"pending", "confirmed", "dispatched", "delivered", "cancelled"}
+    ADMIN_STATUSES = {"dispatched", "delivered", "cancelled"}
 
     def patch(self, request, reference):
         try:
@@ -416,9 +537,25 @@ class AdminOrderUpdateView(APIView):
             return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
 
         new_status = request.data.get("status")
-        if new_status not in self.VALID_STATUSES:
-            return Response({"detail": f"Invalid status. Choose from: {', '.join(self.VALID_STATUSES)}"}, status=status.HTTP_400_BAD_REQUEST)
+        if new_status not in self.ADMIN_STATUSES:
+            return Response(
+                {"detail": f"Choose from: {', '.join(sorted(self.ADMIN_STATUSES))}"},
+                status=status.HTTP_400_BAD_REQUEST,
+            )
 
+        update_fields = ["status", "updated_at"]
         order.status = new_status
-        order.save(update_fields=["status"])
+
+        now = timezone.now()
+        if new_status == "dispatched" and not order.dispatched_at:
+            order.dispatched_at = now
+            update_fields.append("dispatched_at")
+        elif new_status == "delivered" and not order.delivered_at:
+            order.delivered_at = now
+            update_fields.append("delivered_at")
+            if not order.dispatched_at:
+                order.dispatched_at = now
+                update_fields.append("dispatched_at")
+
+        order.save(update_fields=update_fields)
         return Response(AdminOrderSerializer(order).data)

@@ -3,6 +3,10 @@ Kwise World — Django settings.
 """
 from pathlib import Path
 from datetime import timedelta
+import os
+import dotenv
+
+dotenv.load_dotenv()  # Load environment variables from .env file
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -10,7 +14,7 @@ SECRET_KEY = "django-insecure-change-me-in-production-kwise-world-2026"
 
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "3ca9-2605-59c1-196a-2208-f473-4b97-5181-b818.ngrok-free.app"]
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -117,3 +121,9 @@ CORS_ALLOW_CREDENTIALS = True
 
 # ── Swap ──────────────────────────────────────────────────────────────────────
 SWAP_SERVICE_FEE_NGN = 10_000
+
+# ── Paystack ───────────────────────────────────────────────────────────────────
+PAYSTACK_SECRET_KEY = os.environ.get("PAYSTACK_SECRET_KEY")
+PAYSTACK_BASE_URL = "https://api.paystack.co"
+# Callback URL — where Paystack redirects after payment
+FRONTEND_BASE_URL = "http://localhost:3000"  # change to https://kwiseworld.com in production
