@@ -27,11 +27,15 @@ from django.db.models import Q, Sum, F
 from .models import Category, Brand, Product, ProductSpec, Order, OrderItem, PendingTransaction, Review
 from .serializers import (
     CategorySerializer,
+    CategoryWriteSerializer,
+    BrandSerializer,
+    BrandWriteSerializer,
     ProductListSerializer,
     ProductDetailSerializer,
     ProductWriteSerializer,
     AdminProductSerializer,
     AdminOrderSerializer,
+    AdminPendingTransactionSerializer,
     ReviewSerializer,
     OrderCreateSerializer,
     OrderSerializer,
@@ -397,7 +401,7 @@ class PaystackWebhookView(APIView):
 # ── Admin views (superuser only) ──────────────────────────────────────────────
 
 class AdminStatsView(APIView):
-    """GET /api/admin/stats/ — dashboard numbers."""
+    """GET /api/admin/stats/ — dashboard numbers + recent orders + low stock."""
     permission_classes = [IsSuperUser]
 
     def get(self, request):
@@ -405,11 +409,21 @@ class AdminStatsView(APIView):
             status__in=["confirmed", "dispatched", "delivered"]
         ).aggregate(total=Sum("total"))["total"] or 0
 
+        recent_orders = Order.objects.prefetch_related("items").order_by("-created_at")[:8]
+        low_stock = (
+            Product.objects
+            .filter(stock__lte=3, is_one_time=False)
+            .select_related("category", "brand")
+            .order_by("stock")[:10]
+        )
+
         return Response({
             "products": Product.objects.count(),
             "orders": Order.objects.count(),
             "pending_orders": Order.objects.filter(status="pending").count(),
             "total_revenue": total_revenue,
+            "recent_orders": AdminOrderSerializer(recent_orders, many=True).data,
+            "low_stock": AdminProductSerializer(low_stock, many=True).data,
         })
 
 
@@ -512,12 +526,23 @@ class AdminProductSpecView(APIView):
 
 
 class AdminOrderListView(ListAPIView):
-    """GET /api/admin/orders/"""
+    """GET /api/admin/orders/?q=&status="""
     permission_classes = [IsSuperUser]
     serializer_class = AdminOrderSerializer
 
     def get_queryset(self):
-        return Order.objects.prefetch_related("items__product").order_by("-created_at")
+        qs = Order.objects.prefetch_related("items__product").order_by("-created_at")
+        p = self.request.query_params
+        if q := p.get("q", "").strip():
+            qs = qs.filter(
+                Q(reference__icontains=q) |
+                Q(guest_name__icontains=q) |
+                Q(guest_email__icontains=q) |
+                Q(guest_phone__icontains=q)
+            )
+        if status_filter := p.get("status", "").strip():
+            qs = qs.filter(status=status_filter)
+        return qs
 
 
 class AdminOrderUpdateView(APIView):
@@ -559,3 +584,103 @@ class AdminOrderUpdateView(APIView):
 
         order.save(update_fields=update_fields)
         return Response(AdminOrderSerializer(order).data)
+
+
+# ── Admin: Pending Transactions ───────────────────────────────────────────────
+
+class AdminPendingTransactionListView(ListAPIView):
+    """GET /api/admin/pending-transactions/"""
+    permission_classes = [IsSuperUser]
+    serializer_class = AdminPendingTransactionSerializer
+    pagination_class = None
+
+    def get_queryset(self):
+        return PendingTransaction.objects.order_by("-created_at")
+
+
+# ── Admin: Category CRUD ──────────────────────────────────────────────────────
+
+class AdminCategoryListView(APIView):
+    """GET /api/admin/categories/   POST /api/admin/categories/"""
+    permission_classes = [IsSuperUser]
+
+    def get(self, request):
+        cats = Category.objects.prefetch_related("brands").order_by("order", "name")
+        return Response(CategorySerializer(cats, many=True).data)
+
+    def post(self, request):
+        serializer = CategoryWriteSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        cat = serializer.save()
+        return Response(CategorySerializer(cat).data, status=status.HTTP_201_CREATED)
+
+
+class AdminCategoryDetailView(APIView):
+    """PATCH / DELETE /api/admin/categories/<slug>/"""
+    permission_classes = [IsSuperUser]
+
+    def _get(self, slug):
+        try:
+            return Category.objects.prefetch_related("brands").get(slug=slug)
+        except Category.DoesNotExist:
+            return None
+
+    def patch(self, request, slug):
+        cat = self._get(slug)
+        if not cat:
+            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+        serializer = CategoryWriteSerializer(cat, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        cat = serializer.save()
+        return Response(CategorySerializer(cat).data)
+
+    def delete(self, request, slug):
+        cat = self._get(slug)
+        if not cat:
+            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+        cat.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+# ── Admin: Brand CRUD ─────────────────────────────────────────────────────────
+
+class AdminBrandListView(APIView):
+    """GET /api/admin/brands/   POST /api/admin/brands/"""
+    permission_classes = [IsSuperUser]
+
+    def get(self, request):
+        qs = Brand.objects.select_related("category").order_by("category__name", "name")
+        return Response(BrandSerializer(qs, many=True).data)
+
+    def post(self, request):
+        serializer = BrandWriteSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        brand = serializer.save()
+        return Response(BrandSerializer(brand).data, status=status.HTTP_201_CREATED)
+
+
+class AdminBrandDetailView(APIView):
+    """PATCH / DELETE /api/admin/brands/<pk>/"""
+    permission_classes = [IsSuperUser]
+
+    def _get(self, pk):
+        try:
+            return Brand.objects.select_related("category").get(pk=pk)
+        except Brand.DoesNotExist:
+            return None
+
+    def patch(self, request, pk):
+        brand = self._get(pk)
+        if not brand:
+            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+        serializer = BrandWriteSerializer(brand, data=request.data, partial=True)
+        serializer.is_valid(raise_exception=True)
+        brand = serializer.save()
+        return Response(BrandSerializer(brand).data)
+
+    def delete(self, request, pk):
+        brand = self._get(pk)
+        if not brand:
+            return Response({"detail": "Not found."}, status=status.HTTP_404_NOT_FOUND)
+        brand.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)

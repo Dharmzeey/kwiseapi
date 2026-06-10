@@ -10,9 +10,20 @@ from .models import Category, Brand, Product, ProductSpec, Review, Order, OrderI
 
 
 class BrandSerializer(serializers.ModelSerializer):
+    category_name = serializers.CharField(source="category.name", read_only=True)
+
     class Meta:
         model = Brand
-        fields = ["id", "slug", "name"]
+        fields = ["id", "slug", "name", "category", "category_name"]
+
+
+class BrandWriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Brand
+        fields = ["name", "category"]
+
+    def validate_name(self, value):
+        return value.strip()
 
 
 class CategorySerializer(serializers.ModelSerializer):
@@ -21,6 +32,15 @@ class CategorySerializer(serializers.ModelSerializer):
     class Meta:
         model = Category
         fields = ["id", "slug", "name", "icon", "blurb", "brands"]
+
+
+class CategoryWriteSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Category
+        fields = ["name", "icon", "blurb"]
+
+    def validate_name(self, value):
+        return value.strip()
 
 
 class ProductSpecSerializer(serializers.ModelSerializer):
@@ -307,4 +327,14 @@ class AdminOrderSerializer(serializers.ModelSerializer):
             "guest_name", "guest_email", "guest_phone", "delivery_address",
             "items", "created_at",
             "confirmed_at", "dispatched_at", "delivered_at",
+        ]
+
+
+class AdminPendingTransactionSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = PendingTransaction
+        fields = [
+            "reference", "guest_name", "guest_email", "guest_phone",
+            "delivery_address", "subtotal", "delivery_fee", "total",
+            "cart_data", "created_at",
         ]

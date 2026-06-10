@@ -21,6 +21,11 @@ from .views import (
     AdminProductSpecView,
     AdminOrderListView,
     AdminOrderUpdateView,
+    AdminPendingTransactionListView,
+    AdminCategoryListView,
+    AdminCategoryDetailView,
+    AdminBrandListView,
+    AdminBrandDetailView,
     AdminReviewListView,
     AdminReviewVerifyView,
 )
@@ -58,6 +63,11 @@ urlpatterns = [
     path("admin/products/<slug:slug>/specs/", AdminProductSpecView.as_view(), name="admin-product-specs"),
     path("admin/orders/", AdminOrderListView.as_view(), name="admin-order-list"),
     path("admin/orders/<str:reference>/status/", AdminOrderUpdateView.as_view(), name="admin-order-status"),
+    path("admin/pending-transactions/", AdminPendingTransactionListView.as_view(), name="admin-pending-list"),
+    path("admin/categories/", AdminCategoryListView.as_view(), name="admin-category-list"),
+    path("admin/categories/<slug:slug>/", AdminCategoryDetailView.as_view(), name="admin-category-detail"),
+    path("admin/brands/", AdminBrandListView.as_view(), name="admin-brand-list"),
+    path("admin/brands/<int:pk>/", AdminBrandDetailView.as_view(), name="admin-brand-detail"),
     path("admin/reviews/", AdminReviewListView.as_view(), name="admin-review-list"),
     path("admin/reviews/<int:pk>/verify/", AdminReviewVerifyView.as_view(), name="admin-review-verify"),
 ]
