@@ -148,7 +148,7 @@ CATEGORIES = [
 PRODUCTS = [
     # ── HP Laptops ────────────────────────────────────────────────────────────
     {
-        "id": "hp-elitebook-840-g1", "name": "HP EliteBook 840 G1", "cat": "laptops", "brand": "hp",
+        "name": 'HP EliteBook 840 G1', "cat": "laptops", "brand": "hp",
         "thumb": "laptop", "tint": "blue", "price": 180000, "old_price": 200000,
         "status": "Foreign Used",
         "description": "Compact 14-inch business ultrabook. Solid build, fast SSD, ex-UK corporate.",
@@ -156,7 +156,7 @@ PRODUCTS = [
         "series": "EliteBook",
     },
     {
-        "id": "hp-elitebook-820-g3", "name": "HP EliteBook 820 G3", "cat": "laptops", "brand": "hp",
+        "name": 'HP EliteBook 820 G3', "cat": "laptops", "brand": "hp",
         "thumb": "laptop", "tint": "blue", "price": 220000,
         "status": "Foreign Used",
         "description": "12-inch ultrabook with i7, ideal for travel and light work. Ex-UK, clean.",
@@ -164,7 +164,7 @@ PRODUCTS = [
         "series": "EliteBook",
     },
     {
-        "id": "hp-elitebook-820-g4", "name": "HP EliteBook 820 G4", "cat": "laptops", "brand": "hp",
+        "name": 'HP EliteBook 820 G4', "cat": "laptops", "brand": "hp",
         "thumb": "laptop", "tint": "blue", "price": 240000, "old_price": 270000,
         "status": "Foreign Used",
         "description": "Slim business ultrabook — i5, 256GB SSD, snappy performance.",
@@ -172,7 +172,7 @@ PRODUCTS = [
         "series": "EliteBook",
     },
     {
-        "id": "hp-elitebook-840-g3", "name": "HP EliteBook 840 G3", "cat": "laptops", "brand": "hp",
+        "name": 'HP EliteBook 840 G3', "cat": "laptops", "brand": "hp",
         "thumb": "laptop", "tint": "blue", "price": 250000, "old_price": 270000,
         "status": "Foreign Used",
         "description": "The reliable 840 G3 — dual-band WiFi, fast SSD, ex-UK corporate.",
@@ -180,7 +180,7 @@ PRODUCTS = [
         "series": "EliteBook",
     },
     {
-        "id": "hp-elitebook-840-g4", "name": "HP EliteBook 840 G4", "cat": "laptops", "brand": "hp",
+        "name": 'HP EliteBook 840 G4', "cat": "laptops", "brand": "hp",
         "thumb": "laptop", "tint": "blue", "price": 300000,
         "status": "Foreign Used",
         "description": "Upgraded 840 with 7th gen i5 and 256GB SSD. Business-grade reliability.",
@@ -188,7 +188,7 @@ PRODUCTS = [
         "series": "EliteBook",
     },
     {
-        "id": "hp-elitebook-840-g6", "name": "HP EliteBook 840 G6", "cat": "laptops", "brand": "hp",
+        "name": 'HP EliteBook 840 G6', "cat": "laptops", "brand": "hp",
         "thumb": "laptop", "tint": "blue", "price": 400000,
         "status": "Foreign Used", "is_featured": True,
         "description": "Modern thin-frame 840 with 8th-gen i5, 16GB RAM and fast SSD. Ex-UK, excellent condition.",
@@ -196,7 +196,7 @@ PRODUCTS = [
         "series": "EliteBook",
     },
     {
-        "id": "hp-elitebook-830-g7", "name": "HP EliteBook 830 G7", "cat": "laptops", "brand": "hp",
+        "name": 'HP EliteBook 830 G7', "cat": "laptops", "brand": "hp",
         "thumb": "laptop", "tint": "blue", "price": 430000,
         "status": "Foreign Used",
         "description": "13-inch premium ultrabook with 16GB RAM and SSD. Lightweight, professional.",
@@ -204,7 +204,7 @@ PRODUCTS = [
         "series": "EliteBook",
     },
     {
-        "id": "hp-elitebook-1040-g6", "name": "HP EliteBook 1040 G6", "cat": "laptops", "brand": "hp",
+        "name": 'HP EliteBook 1040 G6', "cat": "laptops", "brand": "hp",
         "thumb": "laptop", "tint": "blue", "price": 500000,
         "status": "Foreign Used", "is_featured": True,
         "description": "HP's top-tier ultrabook — feather-light carbon chassis, premium display.",
@@ -212,7 +212,7 @@ PRODUCTS = [
         "series": "EliteBook",
     },
     {
-        "id": "hp-elitebook-1040-g8", "name": "HP EliteBook 1040 G8", "cat": "laptops", "brand": "hp",
+        "name": 'HP EliteBook 1040 G8', "cat": "laptops", "brand": "hp",
         "thumb": "laptop", "tint": "blue", "price": 800000,
         "status": "Foreign Used", "is_featured": True,
         "description": "Flagship 1040 G8 — i7 11th gen, 32GB RAM, 1TB SSD. Near-new condition.",
@@ -220,7 +220,7 @@ PRODUCTS = [
         "series": "EliteBook",
     },
     {
-        "id": "hp-probook-450-g5", "name": "HP ProBook 450 G5", "cat": "laptops", "brand": "hp",
+        "name": 'HP ProBook 450 G5', "cat": "laptops", "brand": "hp",
         "thumb": "laptop", "tint": "blue", "price": 150000,
         "status": "Foreign Used",
         "description": "Affordable 15-inch workhorse with i5 and large storage. Great value.",
@@ -228,7 +228,7 @@ PRODUCTS = [
         "series": "ProBook",
     },
     {
-        "id": "hp-probook-11-g4", "name": "HP ProBook 11 G4", "cat": "laptops", "brand": "hp",
+        "name": 'HP ProBook 11 G4', "cat": "laptops", "brand": "hp",
         "thumb": "laptop", "tint": "blue", "price": 200000,
         "status": "Foreign Used",
         "description": "Compact rugged 11-inch ProBook. Ideal for students and light work.",
@@ -236,7 +236,7 @@ PRODUCTS = [
         "series": "ProBook",
     },
     {
-        "id": "hp-probook-11-g5", "name": "HP ProBook 11 G5", "cat": "laptops", "brand": "hp",
+        "name": 'HP ProBook 11 G5', "cat": "laptops", "brand": "hp",
         "thumb": "laptop", "tint": "blue", "price": 190000,
         "status": "Foreign Used",
         "description": "Updated G5 edition of the rugged compact ProBook 11.",
@@ -246,7 +246,7 @@ PRODUCTS = [
 
     # ── Dell Laptops ──────────────────────────────────────────────────────────
     {
-        "id": "dell-vostro-15", "name": "Dell Vostro 15", "cat": "laptops", "brand": "dell",
+        "name": 'Dell Vostro 15', "cat": "laptops", "brand": "dell",
         "thumb": "laptop", "tint": "indigo", "price": 150000,
         "status": "Foreign Used",
         "description": "Entry-level 15-inch Dell. Solid daily driver for light tasks.",
@@ -254,7 +254,7 @@ PRODUCTS = [
         "series": "Vostro",
     },
     {
-        "id": "dell-latitude-3190", "name": "Dell Latitude 3190", "cat": "laptops", "brand": "dell",
+        "name": 'Dell Latitude 3190', "cat": "laptops", "brand": "dell",
         "thumb": "laptop", "tint": "indigo", "price": 170000,
         "status": "Foreign Used",
         "description": "Compact 11-inch education-grade Latitude. Rugged, reliable, ex-UK.",
@@ -262,7 +262,7 @@ PRODUCTS = [
         "series": "Latitude",
     },
     {
-        "id": "dell-latitude-5300", "name": "Dell Latitude 5300", "cat": "laptops", "brand": "dell",
+        "name": 'Dell Latitude 5300', "cat": "laptops", "brand": "dell",
         "thumb": "laptop", "tint": "indigo", "price": 370000, "old_price": 400000,
         "status": "Foreign Used",
         "description": "13-inch business Latitude with i7, 16GB RAM. Thin, light, professional.",
@@ -270,7 +270,7 @@ PRODUCTS = [
         "series": "Latitude",
     },
     {
-        "id": "dell-latitude-5410", "name": "Dell Latitude 5410", "cat": "laptops", "brand": "dell",
+        "name": 'Dell Latitude 5410', "cat": "laptops", "brand": "dell",
         "thumb": "laptop", "tint": "indigo", "price": 280000, "old_price": 310000,
         "status": "Foreign Used", "is_featured": True,
         "description": "14-inch corporate Latitude — i5 10th gen, backlit keyboard, fingerprint reader.",
@@ -278,7 +278,7 @@ PRODUCTS = [
         "series": "Latitude",
     },
     {
-        "id": "dell-latitude-5510", "name": "Dell Latitude 5510", "cat": "laptops", "brand": "dell",
+        "name": 'Dell Latitude 5510', "cat": "laptops", "brand": "dell",
         "thumb": "laptop", "tint": "indigo", "price": 350000,
         "status": "Foreign Used",
         "description": "15-inch touchscreen Latitude with i5, 16GB RAM and backlit keyboard.",
@@ -286,7 +286,7 @@ PRODUCTS = [
         "series": "Latitude",
     },
     {
-        "id": "dell-latitude-5520", "name": "Dell Latitude 5520", "cat": "laptops", "brand": "dell",
+        "name": 'Dell Latitude 5520', "cat": "laptops", "brand": "dell",
         "thumb": "laptop", "tint": "indigo", "price": 380000,
         "status": "Foreign Used",
         "description": "15-inch 11th-gen i5 with touchscreen, fingerprint and facial recognition.",
@@ -294,7 +294,7 @@ PRODUCTS = [
         "series": "Latitude",
     },
     {
-        "id": "dell-latitude-5530", "name": "Dell Latitude 5530", "cat": "laptops", "brand": "dell",
+        "name": 'Dell Latitude 5530', "cat": "laptops", "brand": "dell",
         "thumb": "laptop", "tint": "indigo", "price": 450000,
         "status": "Foreign Used", "is_featured": True,
         "description": "15-inch modern Latitude with 512GB SSD and backlit keyboard. Nearly new.",
@@ -302,7 +302,7 @@ PRODUCTS = [
         "series": "Latitude",
     },
     {
-        "id": "dell-latitude-5540", "name": "Dell Latitude 5540", "cat": "laptops", "brand": "dell",
+        "name": 'Dell Latitude 5540', "cat": "laptops", "brand": "dell",
         "thumb": "laptop", "tint": "indigo", "price": 480000,
         "status": "Foreign Used",
         "description": "13th-gen 15-inch Latitude — backlit keyboard, fingerprint, facial recognition.",
@@ -310,7 +310,7 @@ PRODUCTS = [
         "series": "Latitude",
     },
     {
-        "id": "dell-latitude-7390", "name": "Dell Latitude 7390", "cat": "laptops", "brand": "dell",
+        "name": 'Dell Latitude 7390', "cat": "laptops", "brand": "dell",
         "thumb": "laptop", "tint": "indigo", "price": 430000,
         "status": "Foreign Used",
         "description": "Premium 13-inch ultrabook from Dell's top Latitude line. Ultra-thin, business-grade.",
@@ -318,7 +318,7 @@ PRODUCTS = [
         "series": "Latitude",
     },
     {
-        "id": "dell-precision-3561", "name": "Dell Precision 3561", "cat": "laptops", "brand": "dell",
+        "name": 'Dell Precision 3561', "cat": "laptops", "brand": "dell",
         "thumb": "laptop", "tint": "indigo", "price": 380000,
         "status": "Foreign Used",
         "description": "Entry workstation with i7 11th gen and dedicated graphics. For creators and engineers.",
@@ -328,7 +328,7 @@ PRODUCTS = [
 
     # ── Lenovo Laptops ────────────────────────────────────────────────────────
     {
-        "id": "lenovo-yoga-x13", "name": "Lenovo Yoga x13", "cat": "laptops", "brand": "lenovo",
+        "name": 'Lenovo Yoga x13', "cat": "laptops", "brand": "lenovo",
         "thumb": "laptop", "tint": "indigo", "price": 470000, "old_price": 500000,
         "status": "Foreign Used",
         "description": "2-in-1 convertible with 10th-gen i7, 16GB RAM and 512GB SSD. Touchscreen, stylus-ready.",
@@ -336,7 +336,7 @@ PRODUCTS = [
         "series": "Yoga",
     },
     {
-        "id": "lenovo-thinkpad-yoga-x390", "name": "Lenovo ThinkPad Yoga x390", "cat": "laptops", "brand": "lenovo",
+        "name": 'Lenovo ThinkPad Yoga x390', "cat": "laptops", "brand": "lenovo",
         "thumb": "laptop", "tint": "indigo", "price": 370000,
         "status": "Foreign Used",
         "description": "ThinkPad-grade build in a touchscreen convertible. 8th-gen i5, 16GB RAM.",
@@ -344,7 +344,7 @@ PRODUCTS = [
         "series": "ThinkPad",
     },
     {
-        "id": "lenovo-thinkpad-yoga-x1", "name": "Lenovo ThinkPad Yoga x1", "cat": "laptops", "brand": "lenovo",
+        "name": 'Lenovo ThinkPad Yoga x1', "cat": "laptops", "brand": "lenovo",
         "thumb": "laptop", "tint": "indigo", "price": 350000,
         "status": "Foreign Used",
         "description": "Premium ThinkPad convertible with OLED touch display option and solid i5 performance.",
@@ -354,7 +354,7 @@ PRODUCTS = [
 
     # ── Apple Laptops ─────────────────────────────────────────────────────────
     {
-        "id": "apple-macbook-pro-2020", "name": "Apple MacBook Pro 2020", "cat": "laptops", "brand": "apple",
+        "name": 'Apple MacBook Pro 2020', "cat": "laptops", "brand": "apple",
         "thumb": "laptop", "tint": "indigo", "price": 670000,
         "status": "Foreign Used", "is_featured": True,
         "description": "Intel MacBook Pro 2020 — 16GB RAM, 512GB SSD. Silent Magic Keyboard, Touch Bar.",
@@ -362,7 +362,7 @@ PRODUCTS = [
         "series": "MacBook Pro",
     },
     {
-        "id": "apple-macbook-pro-2018", "name": "Apple MacBook Pro 2018", "cat": "laptops", "brand": "apple",
+        "name": 'Apple MacBook Pro 2018', "cat": "laptops", "brand": "apple",
         "thumb": "laptop", "tint": "indigo", "price": 500000,
         "status": "Foreign Used",
         "description": "15-inch MacBook Pro 2018 — i7, 16GB RAM, 512GB SSD. Great for creative work.",
@@ -372,55 +372,55 @@ PRODUCTS = [
 
     # ── Phone Chargers ────────────────────────────────────────────────────────
     {
-        "id": "charger-apple-20w-2pin", "name": "Apple 20W USB-C Charger (2-Pin)", "cat": "accessories", "brand": "chargers",
+        "name": 'Apple 20W USB-C Charger (2-Pin)', "cat": "accessories", "brand": "chargers",
         "thumb": "charger", "tint": "orange", "price": 15000,
         "description": "Compact Apple-grade 20W USB-C adapter. Fast-charges iPhone 8 and above. 2-pin plug.",
         "specs": {"Output": "20W PD", "Port": "USB-C", "Plug": "2-Pin"},
     },
     {
-        "id": "charger-apple-20w-set", "name": "Apple 20W Charger + Lightning Cable", "cat": "accessories", "brand": "chargers",
+        "name": 'Apple 20W Charger + Lightning Cable', "cat": "accessories", "brand": "chargers",
         "thumb": "charger", "tint": "orange", "price": 22000,
         "description": "Complete fast-charge set — 20W adapter and USB-C to Lightning cable in the box.",
         "specs": {"Output": "20W PD", "Includes": "Adapter + Cable", "Cable": "USB-C to Lightning"},
     },
     {
-        "id": "charger-apple-20w-3pin", "name": "Apple 20W USB-C Charger (3-Pin)", "cat": "accessories", "brand": "chargers",
+        "name": 'Apple 20W USB-C Charger (3-Pin)', "cat": "accessories", "brand": "chargers",
         "thumb": "charger", "tint": "orange", "price": 17000,
         "description": "Same 20W fast-charge power but with a 3-pin UK-style plug.",
         "specs": {"Output": "20W PD", "Port": "USB-C", "Plug": "3-Pin"},
     },
     {
-        "id": "charger-apple-40w", "name": "Apple 40W Dual USB-C Charger", "cat": "accessories", "brand": "chargers",
+        "name": 'Apple 40W Dual USB-C Charger', "cat": "accessories", "brand": "chargers",
         "thumb": "charger", "tint": "orange", "price": 28000, "is_featured": True,
         "description": "Charge two Apple devices simultaneously. 40W total, two USB-C ports.",
         "specs": {"Output": "40W Total", "Ports": "2x USB-C", "Compat": "iPhone / iPad / Mac"},
     },
     {
-        "id": "charger-samsung-45w", "name": "Samsung 45W Super Fast Charger", "cat": "accessories", "brand": "chargers",
+        "name": 'Samsung 45W Super Fast Charger', "cat": "accessories", "brand": "chargers",
         "thumb": "charger", "tint": "orange", "price": 19000,
         "description": "Official Samsung Super Fast Charging 2.0. Designed for S22 Ultra, S23 Ultra, S24 series.",
         "specs": {"Output": "45W", "Port": "USB-C", "Tech": "Super Fast Charging 2.0"},
     },
     {
-        "id": "charger-samsung-65w", "name": "Samsung 65W Travel Adapter", "cat": "accessories", "brand": "chargers",
+        "name": 'Samsung 65W Travel Adapter', "cat": "accessories", "brand": "chargers",
         "thumb": "charger", "tint": "orange", "price": 26000, "is_featured": True,
         "description": "High-power Samsung adapter for phones and tablets. Compact travel design.",
         "specs": {"Output": "65W", "Port": "USB-C", "Tech": "Super Fast Charging"},
     },
     {
-        "id": "charger-oraimo-iphone", "name": "Oraimo iPhone Fast Charger", "cat": "accessories", "brand": "chargers",
+        "name": 'Oraimo iPhone Fast Charger', "cat": "accessories", "brand": "chargers",
         "thumb": "charger", "tint": "orange", "price": 9500,
         "description": "Reliable Oraimo 20W charger for iPhones. MFi-grade performance at a smart price.",
         "specs": {"Output": "20W PD", "Port": "USB-C", "Brand": "Oraimo"},
     },
     {
-        "id": "charger-oraimo-android", "name": "Oraimo Android Fast Charger", "cat": "accessories", "brand": "chargers",
+        "name": 'Oraimo Android Fast Charger', "cat": "accessories", "brand": "chargers",
         "thumb": "charger", "tint": "orange", "price": 8500,
         "description": "Quick Charge compatible Oraimo adapter for Samsung and Android phones.",
         "specs": {"Output": "18W QC", "Port": "USB-A", "Brand": "Oraimo"},
     },
     {
-        "id": "charger-car", "name": "Dual USB Car Charger", "cat": "accessories", "brand": "chargers",
+        "name": 'Dual USB Car Charger', "cat": "accessories", "brand": "chargers",
         "thumb": "charger", "tint": "orange", "price": 7000,
         "description": "Charge two phones at once from your car's 12V socket. Compact, heat-resistant.",
         "specs": {"Output": "24W Total", "Ports": "USB-A + USB-C", "Mount": "12V Socket"},
@@ -428,43 +428,43 @@ PRODUCTS = [
 
     # ── Laptop Chargers ───────────────────────────────────────────────────────
     {
-        "id": "lcharger-hp-65w-usbc-corner", "name": "HP 65W USB-C Adapter (Corner)", "cat": "accessories", "brand": "laptop-chargers",
+        "name": 'HP 65W USB-C Adapter (Corner)', "cat": "accessories", "brand": "laptop-chargers",
         "thumb": "charger", "tint": "blue", "price": 18000,
         "description": "Replacement adapter for HP EliteBook 830/840/1040 G-series with USB-C corner connector.",
         "specs": {"Output": "20V / 3.25A — 65W", "Connector": "USB-C Corner", "Fit": "HP EliteBook G6/G7"},
     },
     {
-        "id": "lcharger-hp-65w-usbc-straight", "name": "HP 65W USB-C Adapter (Straight)", "cat": "accessories", "brand": "laptop-chargers",
+        "name": 'HP 65W USB-C Adapter (Straight)', "cat": "accessories", "brand": "laptop-chargers",
         "thumb": "charger", "tint": "blue", "price": 18500,
         "description": "Straight USB-C variant for HP EliteBook models that take a direct plug.",
         "specs": {"Output": "20V / 3.25A — 65W", "Connector": "USB-C Straight", "Fit": "HP EliteBook G6/G7"},
     },
     {
-        "id": "lcharger-hp-65w-usbc-oval", "name": "HP 65W USB-C Adapter (Oval)", "cat": "accessories", "brand": "laptop-chargers",
+        "name": 'HP 65W USB-C Adapter (Oval)', "cat": "accessories", "brand": "laptop-chargers",
         "thumb": "charger", "tint": "blue", "price": 24000,
         "description": "Oval USB-C connector variant — fits specific HP EliteBook models.",
         "specs": {"Output": "20V / 3.25A — 65W", "Connector": "USB-C Oval", "Fit": "HP EliteBook"},
     },
     {
-        "id": "lcharger-hp-195v-smallpin", "name": "HP 65W Small Pin Adapter", "cat": "accessories", "brand": "laptop-chargers",
+        "name": 'HP 65W Small Pin Adapter', "cat": "accessories", "brand": "laptop-chargers",
         "thumb": "charger", "tint": "blue", "price": 18000,
         "description": "Barrel-pin charger for older HP ProBook, EliteBook and Pavilion models.",
         "specs": {"Output": "19.5V / 4.62A — 65W", "Connector": "Small Barrel Pin", "Fit": "HP ProBook / Pavilion"},
     },
     {
-        "id": "lcharger-dell-usbc", "name": "Dell 65W USB-C Adapter", "cat": "accessories", "brand": "laptop-chargers",
+        "name": 'Dell 65W USB-C Adapter', "cat": "accessories", "brand": "laptop-chargers",
         "thumb": "charger", "tint": "indigo", "price": 19000,
         "description": "USB-C power delivery adapter for modern Dell Latitude and XPS models.",
         "specs": {"Output": "20V / 3.25A — 65W", "Connector": "USB-C", "Fit": "Dell Latitude 5x / XPS"},
     },
     {
-        "id": "lcharger-dell-195v-smallpin", "name": "Dell 65W Small Pin Adapter", "cat": "accessories", "brand": "laptop-chargers",
+        "name": 'Dell 65W Small Pin Adapter', "cat": "accessories", "brand": "laptop-chargers",
         "thumb": "charger", "tint": "indigo", "price": 20000,
         "description": "Slim barrel-pin charger for Dell Inspiron and older Latitude models.",
         "specs": {"Output": "19.5V / 3.34A — 65W", "Connector": "Small Barrel Pin", "Fit": "Dell Inspiron / Latitude"},
     },
     {
-        "id": "lcharger-dell-195v-bigpin", "name": "Dell 90W Big Pin Adapter", "cat": "accessories", "brand": "laptop-chargers",
+        "name": 'Dell 90W Big Pin Adapter', "cat": "accessories", "brand": "laptop-chargers",
         "thumb": "charger", "tint": "indigo", "price": 23000,
         "description": "Higher-wattage oval-tip charger for Dell Vostro and larger Latitude models.",
         "specs": {"Output": "19.5V / 4.62A — 90W", "Connector": "Big Barrel Oval", "Fit": "Dell Vostro / Latitude"},
@@ -472,49 +472,49 @@ PRODUCTS = [
 
     # ── Laptop Batteries ──────────────────────────────────────────────────────
     {
-        "id": "battery-cm03xl", "name": "HP Battery CM03XL", "cat": "accessories", "brand": "laptop-batteries",
+        "name": 'HP Battery CM03XL', "cat": "accessories", "brand": "laptop-batteries",
         "thumb": "battery", "tint": "blue", "price": 28500, "is_featured": True,
         "description": "Replacement battery for HP EliteBook 840 G1 and G2. Restore all-day battery life.",
         "specs": {"Part": "CM03XL", "Fit": "HP EliteBook 840 G1 / G2", "Type": "Li-ion"},
     },
     {
-        "id": "battery-sb03xl", "name": "HP Battery SB03XL", "cat": "accessories", "brand": "laptop-batteries",
+        "name": 'HP Battery SB03XL', "cat": "accessories", "brand": "laptop-batteries",
         "thumb": "battery", "tint": "blue", "price": 30000,
         "description": "Battery for HP EliteBook 820 G1 and G2. Brings your old 820 back to life.",
         "specs": {"Part": "SB03XL", "Fit": "HP EliteBook 820 G1 / G2", "Type": "Li-ion"},
     },
     {
-        "id": "battery-sn03xl", "name": "HP Battery SN03XL", "cat": "accessories", "brand": "laptop-batteries",
+        "name": 'HP Battery SN03XL', "cat": "accessories", "brand": "laptop-batteries",
         "thumb": "battery", "tint": "blue", "price": 30000,
         "description": "Battery for HP EliteBook 820 G3 and G4. Fresh cells, long run time.",
         "specs": {"Part": "SN03XL", "Fit": "HP EliteBook 820 G3 / G4", "Type": "Li-ion"},
     },
     {
-        "id": "battery-cs03xl", "name": "HP Battery CS03XL", "cat": "accessories", "brand": "laptop-batteries",
+        "name": 'HP Battery CS03XL', "cat": "accessories", "brand": "laptop-batteries",
         "thumb": "battery", "tint": "blue", "price": 30000,
         "description": "Drop-in replacement for HP EliteBook 840 G3 and G4.",
         "specs": {"Part": "CS03XL", "Fit": "HP EliteBook 840 G3 / G4", "Type": "Li-ion"},
     },
     {
-        "id": "battery-bg06xl", "name": "HP Battery BG06XL", "cat": "accessories", "brand": "laptop-batteries",
+        "name": 'HP Battery BG06XL', "cat": "accessories", "brand": "laptop-batteries",
         "thumb": "battery", "tint": "blue", "price": 38000,
         "description": "Large-capacity battery for HP EliteBook 1040 G3. Premium long-life cells.",
         "specs": {"Part": "BG06XL", "Fit": "HP EliteBook 1040 G3", "Type": "Li-ion"},
     },
     {
-        "id": "battery-bm04xl", "name": "HP Battery BM04XL", "cat": "accessories", "brand": "laptop-batteries",
+        "name": 'HP Battery BM04XL', "cat": "accessories", "brand": "laptop-batteries",
         "thumb": "battery", "tint": "blue", "price": 35000,
         "description": "Replacement battery for HP EliteBook 1030 G3.",
         "specs": {"Part": "BM04XL", "Fit": "HP EliteBook 1030 G3", "Type": "Li-ion"},
     },
     {
-        "id": "battery-om03xl", "name": "HP Battery OM03XL", "cat": "accessories", "brand": "laptop-batteries",
+        "name": 'HP Battery OM03XL', "cat": "accessories", "brand": "laptop-batteries",
         "thumb": "battery", "tint": "blue", "price": 36000,
         "description": "Battery for HP EliteBook 1030 G2. Slim form factor, high energy density.",
         "specs": {"Part": "OM03XL", "Fit": "HP EliteBook 1030 G2", "Type": "Li-ion"},
     },
     {
-        "id": "battery-bt04xl", "name": "HP Battery BT04XL", "cat": "accessories", "brand": "laptop-batteries",
+        "name": 'HP Battery BT04XL', "cat": "accessories", "brand": "laptop-batteries",
         "thumb": "battery", "tint": "blue", "price": 33000,
         "description": "Battery for HP EliteBook Folio 9470m. Easy swap, direct fit.",
         "specs": {"Part": "BT04XL", "Fit": "HP EliteBook Folio 9470m", "Type": "Li-ion"},
@@ -522,25 +522,25 @@ PRODUCTS = [
 
     # ── Cables ────────────────────────────────────────────────────────────────
     {
-        "id": "cable-usba-lightning-oraimo", "name": "Oraimo USB-A to Lightning Cable", "cat": "accessories", "brand": "cables",
+        "name": 'Oraimo USB-A to Lightning Cable', "cat": "accessories", "brand": "cables",
         "thumb": "cable", "tint": "orange", "price": 7500,
         "description": "Reliable Oraimo charging cable for iPhone and AirPods. Nylon-braided, tangle-free.",
         "specs": {"Length": "1m", "Connector": "USB-A to Lightning", "Jacket": "Nylon Braided"},
     },
     {
-        "id": "cable-usbc-lightning", "name": "USB-C to Lightning Cable", "cat": "accessories", "brand": "cables",
+        "name": 'USB-C to Lightning Cable', "cat": "accessories", "brand": "cables",
         "thumb": "cable", "tint": "orange", "price": 9500,
         "description": "Fast-charge cable for iPhone 8 and above. Pairs with 20W USB-C adapter.",
         "specs": {"Length": "1m", "Connector": "USB-C to Lightning", "Speed": "Fast Charge"},
     },
     {
-        "id": "cable-usbc-usbc-oraimo", "name": "Oraimo USB-C to USB-C Cable", "cat": "accessories", "brand": "cables",
+        "name": 'Oraimo USB-C to USB-C Cable', "cat": "accessories", "brand": "cables",
         "thumb": "cable", "tint": "orange", "price": 7000,
         "description": "60W USB-C cable for Samsung, laptops and modern Androids. Braided for durability.",
         "specs": {"Length": "1m", "Connector": "USB-C to USB-C", "Speed": "60W PD"},
     },
     {
-        "id": "cable-usba-microusb", "name": "USB-A to Micro USB Cable", "cat": "accessories", "brand": "cables",
+        "name": 'USB-A to Micro USB Cable', "cat": "accessories", "brand": "cables",
         "thumb": "cable", "tint": "orange", "price": 4500,
         "description": "Standard Micro USB cable for older Android phones and accessories.",
         "specs": {"Length": "1m", "Connector": "USB-A to Micro USB", "Speed": "Standard Charge"},
@@ -548,13 +548,13 @@ PRODUCTS = [
 
     # ── Power Banks ───────────────────────────────────────────────────────────
     {
-        "id": "powerbank-20000", "name": "20,000mAh Power Bank", "cat": "accessories", "brand": "power-banks",
+        "name": '20,000mAh Power Bank', "cat": "accessories", "brand": "power-banks",
         "thumb": "powerbank", "tint": "orange", "price": 22000, "is_featured": True,
         "description": "Multi-day power for trips and long days. Fast-charge in and out via USB-C.",
         "specs": {"Capacity": "20,000mAh", "Output": "22.5W", "Ports": "USB-C + 2x USB-A"},
     },
     {
-        "id": "powerbank-27000", "name": "27,000mAh Power Bank", "cat": "accessories", "brand": "power-banks",
+        "name": '27,000mAh Power Bank', "cat": "accessories", "brand": "power-banks",
         "thumb": "powerbank", "tint": "orange", "price": 23000, "is_featured": True,
         "description": "High-capacity travel companion — charges your phone 6+ times. USB-C PD 65W output.",
         "specs": {"Capacity": "27,000mAh", "Output": "65W PD", "Ports": "USB-C + 2x USB-A"},
@@ -562,37 +562,37 @@ PRODUCTS = [
 
     # ── Pouches & Cases ───────────────────────────────────────────────────────
     {
-        "id": "pouch-iphone-6-8-se", "name": "Phone Pouch — iPhone 6 / 8 / SE", "cat": "accessories", "brand": "pouches",
+        "name": 'Phone Pouch — iPhone 6 / 8 / SE', "cat": "accessories", "brand": "pouches",
         "thumb": "case", "tint": "orange", "price": 3000,
         "description": "Slim PU leather sleeve for iPhone 6, 7, 8 and SE (2nd/3rd gen). Drop-safe, scratch-free.",
         "specs": {"Fit": "iPhone 6 · 7 · 8 · SE (2nd/3rd gen)", "Material": "PU Leather", "Closure": "Magnetic flap"},
     },
     {
-        "id": "pouch-iphone-x-11", "name": "Phone Pouch — iPhone X / 11", "cat": "accessories", "brand": "pouches",
+        "name": 'Phone Pouch — iPhone X / 11', "cat": "accessories", "brand": "pouches",
         "thumb": "case", "tint": "orange", "price": 3500,
         "description": "Tailored sleeve for iPhone X, XS, XR, 11, 11 Pro and 11 Pro Max models.",
         "specs": {"Fit": "iPhone X · XS · XR · 11 series", "Material": "PU Leather", "Closure": "Magnetic flap"},
     },
     {
-        "id": "pouch-iphone-12-14", "name": "Phone Pouch — iPhone 12 / 13 / 14", "cat": "accessories", "brand": "pouches",
+        "name": 'Phone Pouch — iPhone 12 / 13 / 14', "cat": "accessories", "brand": "pouches",
         "thumb": "case", "tint": "orange", "price": 4000,
         "description": "Protective sleeve that fits all 12, 13 and 14 series iPhones (standard + Plus/Max).",
         "specs": {"Fit": "iPhone 12 · 13 · 14 (all variants)", "Material": "PU Leather", "Closure": "Magnetic flap"},
     },
     {
-        "id": "pouch-iphone-15-17", "name": "Phone Pouch — iPhone 15 / 16 / 17", "cat": "accessories", "brand": "pouches",
+        "name": 'Phone Pouch — iPhone 15 / 16 / 17', "cat": "accessories", "brand": "pouches",
         "thumb": "case", "tint": "orange", "price": 4500,
         "description": "Modern-cut sleeve for the latest iPhone generations. Titanium-edge safe.",
         "specs": {"Fit": "iPhone 15 · 16 · 17 (all variants)", "Material": "PU Leather", "Closure": "Magnetic flap"},
     },
     {
-        "id": "pouch-samsung-s9-s10", "name": "Phone Pouch — Samsung S9 / S10", "cat": "accessories", "brand": "pouches",
+        "name": 'Phone Pouch — Samsung S9 / S10', "cat": "accessories", "brand": "pouches",
         "thumb": "case", "tint": "orange", "price": 4000,
         "description": "Slim protective sleeve for Galaxy S9+ and S10+ models.",
         "specs": {"Fit": "Galaxy S9+ · S10+", "Material": "PU Leather", "Closure": "Magnetic flap"},
     },
     {
-        "id": "pouch-samsung-s20-s25", "name": "Phone Pouch — Samsung S20–S25", "cat": "accessories", "brand": "pouches",
+        "name": 'Phone Pouch — Samsung S20–S25', "cat": "accessories", "brand": "pouches",
         "thumb": "case", "tint": "orange", "price": 4500,
         "description": "Well-fitted sleeve for Galaxy S20 through S25 series (standard, + and Ultra).",
         "specs": {"Fit": "Galaxy S20 · S21 · S22 · S23 · S24 · S25 series", "Material": "PU Leather", "Closure": "Magnetic flap"},
@@ -600,43 +600,43 @@ PRODUCTS = [
 
     # ── Screen Guards ─────────────────────────────────────────────────────────
     {
-        "id": "sg-iphone-x-11", "name": "Screen Guard — iPhone X / 11", "cat": "accessories", "brand": "screen-guards",
+        "name": 'Screen Guard — iPhone X / 11', "cat": "accessories", "brand": "screen-guards",
         "thumb": "shield", "tint": "orange", "price": 1500,
         "description": "9H tempered glass for iPhone X, XS, XR, 11, 11 Pro and 11 Pro Max.",
         "specs": {"Hardness": "9H", "Fit": "iPhone X · XS · XR · 11 series", "Pack": "2-pack + alignment kit"},
     },
     {
-        "id": "sg-iphone-12-13", "name": "Screen Guard — iPhone 12 / 13", "cat": "accessories", "brand": "screen-guards",
+        "name": 'Screen Guard — iPhone 12 / 13', "cat": "accessories", "brand": "screen-guards",
         "thumb": "shield", "tint": "orange", "price": 1700,
         "description": "Precision-cut 9H glass for iPhone 12 and 13 series (mini, standard, Pro, Max).",
         "specs": {"Hardness": "9H", "Fit": "iPhone 12 · 13 (all variants)", "Pack": "2-pack + alignment kit"},
     },
     {
-        "id": "sg-iphone-14", "name": "Screen Guard — iPhone 14", "cat": "accessories", "brand": "screen-guards",
+        "name": 'Screen Guard — iPhone 14', "cat": "accessories", "brand": "screen-guards",
         "thumb": "shield", "tint": "orange", "price": 2000,
         "description": "9H tempered glass precisely cut for iPhone 14 and 14 Plus.",
         "specs": {"Hardness": "9H", "Fit": "iPhone 14 · 14 Plus", "Pack": "2-pack + alignment kit"},
     },
     {
-        "id": "sg-iphone-15", "name": "Screen Guard — iPhone 15", "cat": "accessories", "brand": "screen-guards",
+        "name": 'Screen Guard — iPhone 15', "cat": "accessories", "brand": "screen-guards",
         "thumb": "shield", "tint": "orange", "price": 2000,
         "description": "9H glass for iPhone 15 and 15 Plus. Curved-edge safe cutouts.",
         "specs": {"Hardness": "9H", "Fit": "iPhone 15 · 15 Plus", "Pack": "2-pack + alignment kit"},
     },
     {
-        "id": "sg-iphone-16-17", "name": "Screen Guard — iPhone 16 / 17", "cat": "accessories", "brand": "screen-guards",
+        "name": 'Screen Guard — iPhone 16 / 17', "cat": "accessories", "brand": "screen-guards",
         "thumb": "shield", "tint": "orange", "price": 2500,
         "description": "Latest-gen 9H glass for iPhone 16, 17 and their Plus/Pro/Max variants.",
         "specs": {"Hardness": "9H", "Fit": "iPhone 16 · 17 (all variants)", "Pack": "2-pack + alignment kit"},
     },
     {
-        "id": "sg-samsung-ultra", "name": "Privacy Screen Guard — Samsung Ultra", "cat": "accessories", "brand": "screen-guards",
+        "name": 'Privacy Screen Guard — Samsung Ultra', "cat": "accessories", "brand": "screen-guards",
         "thumb": "shield", "tint": "orange", "price": 4500,
         "description": "Anti-spy 9H glass for Galaxy S22 Ultra, S23 Ultra, S24 Ultra and S25 Ultra.",
         "specs": {"Hardness": "9H", "Feature": "28° Privacy Filter", "Fit": "Galaxy Ultra series"},
     },
     {
-        "id": "sg-samsung-s20-s25", "name": "Screen Guard — Samsung S20–S25", "cat": "accessories", "brand": "screen-guards",
+        "name": 'Screen Guard — Samsung S20–S25', "cat": "accessories", "brand": "screen-guards",
         "thumb": "shield", "tint": "orange", "price": 4000,
         "description": "Crystal-clear 9H tempered glass for Galaxy S20 through S25 (standard/+).",
         "specs": {"Hardness": "9H", "Fit": "Galaxy S20 · S21 · S22 · S23 · S24 · S25", "Pack": "2-pack"},
@@ -644,25 +644,25 @@ PRODUCTS = [
 
     # ── Laptop Other ──────────────────────────────────────────────────────────
     {
-        "id": "laptop-stand", "name": "Adjustable Laptop Stand", "cat": "accessories", "brand": "laptop-other",
+        "name": 'Adjustable Laptop Stand', "cat": "accessories", "brand": "laptop-other",
         "thumb": "laptop", "tint": "blue", "price": 10000,
         "description": "Ergonomic aluminium stand — 6 height settings, keeps your laptop cool.",
         "specs": {"Material": "Aluminium", "Fit": "10–17 inch", "Levels": "6 adjustable heights"},
     },
     {
-        "id": "laptop-handbag", "name": "Laptop Handbag 14\"", "cat": "accessories", "brand": "laptop-other",
+        "name": 'Laptop Handbag 14"', "cat": "accessories", "brand": "laptop-other",
         "thumb": "case", "tint": "blue", "price": 13000,
         "description": "Stylish tote with padded compartment for 14-inch laptops. Multiple pockets.",
         "specs": {"Fit": '14"', "Material": "Canvas + PU trim", "Pockets": "3 exterior"},
     },
     {
-        "id": "laptop-backpack", "name": "Laptop Backpack 15.6\"", "cat": "accessories", "brand": "laptop-other",
+        "name": 'Laptop Backpack 15.6"', "cat": "accessories", "brand": "laptop-other",
         "thumb": "case", "tint": "blue", "price": 15000, "is_featured": True,
         "description": "Padded, water-resistant backpack with USB charging port and 15.6-inch laptop sleeve.",
         "specs": {"Fit": '15.6"', "Material": "Water-resistant nylon", "Extra": "USB charging port"},
     },
     {
-        "id": "wireless-mouse", "name": "Wireless Mouse", "cat": "accessories", "brand": "laptop-other",
+        "name": 'Wireless Mouse', "cat": "accessories", "brand": "laptop-other",
         "thumb": "laptop", "tint": "blue", "price": 3500,
         "description": "Silent 2.4GHz wireless mouse. DPI adjustable, ergonomic grip, nano USB receiver.",
         "specs": {"Connection": "2.4GHz Wireless", "DPI": "800 / 1200 / 1600", "Battery": "AA (included)"},
@@ -670,19 +670,19 @@ PRODUCTS = [
 
     # ── Audio ─────────────────────────────────────────────────────────────────
     {
-        "id": "airpods-3rd-gen", "name": "Apple AirPods (3rd Gen)", "cat": "accessories", "brand": "audio",
+        "name": 'Apple AirPods (3rd Gen)', "cat": "accessories", "brand": "audio",
         "thumb": "cable", "tint": "blue", "price": 145000, "is_featured": True,
         "description": "Spatial audio, Adaptive EQ and 30h total battery with the case. Brand new, sealed.",
         "specs": {"Audio": "Spatial Audio + Adaptive EQ", "Battery": "6h + 24h case", "Resistance": "IPX4"},
     },
     {
-        "id": "airpods-pro-2nd-gen", "name": "Apple AirPods Pro (2nd Gen)", "cat": "accessories", "brand": "audio",
+        "name": 'Apple AirPods Pro (2nd Gen)', "cat": "accessories", "brand": "audio",
         "thumb": "cable", "tint": "blue", "price": 250000, "is_featured": True, "badge": "Best Seller",
         "description": "Active Noise Cancellation, Transparency mode and H2 chip. Brand new, sealed.",
         "specs": {"Audio": "ANC + Transparency + Spatial Audio", "Battery": "6h + 24h case", "Resistance": "IP54"},
     },
     {
-        "id": "airpods-max", "name": "Apple AirPods Max", "cat": "accessories", "brand": "audio",
+        "name": 'Apple AirPods Max', "cat": "accessories", "brand": "audio",
         "thumb": "cable", "tint": "blue", "price": 480000,
         "description": "Premium over-ear headphones with Active Noise Cancellation and Spatial Audio.",
         "specs": {"Audio": "ANC + Spatial Audio", "Battery": "20h ANC on", "Driver": "40mm custom"},
@@ -690,19 +690,19 @@ PRODUCTS = [
 
     # ── Gadgets ───────────────────────────────────────────────────────────────
     {
-        "id": "pocket-wifi-airtel", "name": "Airtel Universal Pocket WiFi", "cat": "accessories", "brand": "gadgets",
+        "name": 'Airtel Universal Pocket WiFi', "cat": "accessories", "brand": "gadgets",
         "thumb": "powerbank", "tint": "orange", "price": 25000,
         "description": "Multi SIM support. Create a personal 4G hotspot anywhere. Supports up to 10 devices simultaneously.",
         "specs": {"Network": "4G LTE", "Devices": "Up to 10", "Battery": "1500mAh"},
     },
     {
-        "id": "starlink-gen3", "name": "Starlink Gen 3 Kit", "cat": "accessories", "brand": "gadgets",
+        "name": 'Starlink Gen 3 Kit', "cat": "accessories", "brand": "gadgets",
         "thumb": "powerbank", "tint": "indigo", "price": 600000, "is_featured": True, "badge": "New",
         "description": "Super fast satellite internet. Blazing speeds anywhere in Nigeria — dish, router and cables included.",
         "specs": {"Speed": "100–200 Mbps", "Latency": "20–40ms", "Includes": "Dish + Router + Cables"},
     },
     {
-        "id": "ps5-slim", "name": "Sony PS5 Slim", "cat": "accessories", "brand": "gadgets",
+        "name": 'Sony PS5 Slim', "cat": "accessories", "brand": "gadgets",
         "thumb": "powerbank", "tint": "indigo", "price": 850000, "is_featured": True, "badge": "Best Seller",
         "description": "The compact PS5 Slim disc edition. Brand new, sealed. Nigeria warranty.",
         "specs": {"Storage": "1TB SSD", "Resolution": "4K 120fps", "Form": "Slim disc edition"},
@@ -710,7 +710,7 @@ PRODUCTS = [
 
     # ── One-time offers ───────────────────────────────────────────────────────
     {
-        "id": "ot-iphone-14-promax", "name": "iPhone 14 Pro Max", "cat": "phones", "brand": "iphone",
+        "name": 'iPhone 14 Pro Max 128GB', "cat": "phones", "brand": "iphone",
         "thumb": "phone", "tint": "blue", "price": 780000, "old_price": 980000,
         "status": "Nigeria-Used", "is_one_time": True, "stock": 1,
         "one_time_note": "Tiny hairline scratch on back glass. Screen flawless. Battery 86%.",
@@ -719,7 +719,7 @@ PRODUCTS = [
         "series": "iPhone 14",
     },
     {
-        "id": "ot-iphone-13-promax", "name": "iPhone 13 Pro Max 128GB", "cat": "phones", "brand": "iphone",
+        "name": 'iPhone 13 Pro Max 128GB', "cat": "phones", "brand": "iphone",
         "thumb": "phone", "tint": "blue", "price": 430000, "old_price": 620000,
         "status": "Nigeria-Used", "is_one_time": True, "stock": 1,
         "one_time_note": "Aftermarket screen (excellent quality). Body clean. Battery 88%.",
@@ -728,7 +728,7 @@ PRODUCTS = [
         "series": "iPhone 13",
     },
     {
-        "id": "ot-galaxy-s23-ultra", "name": "Galaxy S23 Ultra", "cat": "phones", "brand": "samsung",
+        "name": 'Galaxy S23 Ultra', "cat": "phones", "brand": "samsung",
         "thumb": "phone", "tint": "indigo", "price": 820000, "old_price": 1000000,
         "status": "Foreign Used", "is_one_time": True, "stock": 1,
         "one_time_note": "Faint single pixel dot, invisible in normal use. S Pen included.",
@@ -737,7 +737,7 @@ PRODUCTS = [
         "series": "Galaxy S23",
     },
     {
-        "id": "ot-macbook-air-m1", "name": "MacBook Air 2020", "cat": "laptops", "brand": "apple",
+        "name": 'MacBook Air 2020', "cat": "laptops", "brand": "apple",
         "thumb": "laptop", "tint": "indigo", "price": 430000,
         "status": "Nigeria-Used", "is_one_time": True, "stock": 1,
         "one_time_note": "Neatly used with a low cycle count. Runs perfectly.",
@@ -746,7 +746,7 @@ PRODUCTS = [
         "series": "MacBook Air",
     },
     {
-        "id": "ot-hp-elitebook-dent", "name": "HP EliteBook 840 (ex-UK)", "cat": "laptops", "brand": "hp",
+        "name": 'HP EliteBook 840 (ex-UK)', "cat": "laptops", "brand": "hp",
         "thumb": "laptop", "tint": "blue", "price": 360000, "old_price": 520000,
         "status": "Foreign Used", "is_one_time": True, "stock": 1,
         "one_time_note": "Visible dent on palm rest. Fully functional, keyboard perfect.",
@@ -755,7 +755,7 @@ PRODUCTS = [
         "series": "EliteBook",
     },
     {
-        "id": "ot-galaxy-zfold4", "name": "Galaxy Z Fold4", "cat": "phones", "brand": "samsung",
+        "name": 'Galaxy Z Fold4', "cat": "phones", "brand": "samsung",
         "thumb": "phone", "tint": "indigo", "price": 720000, "old_price": 950000,
         "status": "Foreign Used", "is_one_time": True, "stock": 1,
         "one_time_note": "Light crease wear (normal for folds). Hinge tight, no dead pixels.",
@@ -785,7 +785,6 @@ def load_iphone_products() -> list[dict]:
             full_name = f"{model} {capacity}"
             slug      = slugify(full_name)
             products.append({
-                "id":           slug,
                 "name":         full_name,
                 "series":       sp.get("series", model),
                 "cat":          "phones",
@@ -823,7 +822,6 @@ def load_samsung_products() -> list[dict]:
             full_name = f"{model} {capacity}"
             slug      = slugify(full_name)
             products.append({
-                "id":           slug,
                 "name":         full_name,
                 "series":       sp.get("series", model),
                 "cat":          "phones",
@@ -886,7 +884,7 @@ class Command(BaseCommand):
             brand      = brand_map[(cat_slug, brand_slug)]
 
             product, _ = Product.objects.update_or_create(
-                slug=p_data["id"],
+                slug=slugify(p_data["name"]),
                 defaults={
                     "name":          p_data["name"],
                     "category":      cat,

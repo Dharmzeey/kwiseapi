@@ -17,6 +17,7 @@ ENV/
 .env
 .env.*
 local_settings.py
+.env2
 
 # Database
 *.sqlite3

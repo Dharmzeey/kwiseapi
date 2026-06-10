@@ -1,20 +1,22 @@
 """
-Kwise World — Django settings.
+Kwise World — base settings shared by all environments.
 """
 from pathlib import Path
 from datetime import timedelta
 import os
 import dotenv
 
-dotenv.load_dotenv()  # Load environment variables from .env file
+dotenv.load_dotenv()
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
-SECRET_KEY = "django-insecure-change-me-in-production-kwise-world-2026"
+SECRET_KEY = os.environ["SECRET_KEY"]
 
-DEBUG = True
+ALLOWED_HOSTS = os.environ.get("ALLOWED_HOSTS", "").split(",")
 
-ALLOWED_HOSTS = ["localhost", "127.0.0.1", "3ca9-2605-59c1-196a-2208-f473-4b97-5181-b818.ngrok-free.app"]
+CORS_ALLOWED_ORIGINS = os.getenv('CORS_ALLOWED_ORIGINS', '').split(',')
+
+CSRF_TRUSTED_ORIGINS = os.getenv('CSRF_TRUSTED_ORIGINS', '').split(',')
 
 INSTALLED_APPS = [
     "django.contrib.admin",
@@ -27,10 +29,11 @@ INSTALLED_APPS = [
     "rest_framework",
     "rest_framework_simplejwt",
     "corsheaders",
+    "django_cleanup.apps.CleanupConfig",
     # Local
-    "users",
+    "users.apps.UsersConfig",
     "store.apps.StoreConfig",
-    "swap",
+    "swap.apps.SwapConfig",
 ]
 
 MIDDLEWARE = [
@@ -64,13 +67,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "kwiseapi.wsgi.application"
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
-
 AUTH_USER_MODEL = "users.User"
 
 AUTH_PASSWORD_VALIDATORS = [
@@ -87,9 +83,6 @@ USE_TZ = True
 
 STATIC_URL = "static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
-
-MEDIA_URL = "/media/"
-MEDIA_ROOT = BASE_DIR / "media"
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
@@ -113,17 +106,13 @@ SIMPLE_JWT = {
 }
 
 # ── CORS ──────────────────────────────────────────────────────────────────────
-CORS_ALLOWED_ORIGINS = [
-    "http://localhost:3000",
-    "http://127.0.0.1:3000",
-]
+CORS_ALLOWED_ORIGINS = os.environ.get("CORS_ALLOWED_ORIGINS", "").split(",")
 CORS_ALLOW_CREDENTIALS = True
 
 # ── Swap ──────────────────────────────────────────────────────────────────────
 SWAP_SERVICE_FEE_NGN = 10_000
 
-# ── Paystack ───────────────────────────────────────────────────────────────────
+# ── Paystack ─────────────────────────────────────────────────────────────────
 PAYSTACK_SECRET_KEY = os.environ.get("PAYSTACK_SECRET_KEY")
 PAYSTACK_BASE_URL = "https://api.paystack.co"
-# Callback URL — where Paystack redirects after payment
-FRONTEND_BASE_URL = "http://localhost:3000"  # change to https://kwiseworld.com in production
+FRONTEND_BASE_URL = os.environ.get("FRONTEND_BASE_URL", "http://localhost:3000")
