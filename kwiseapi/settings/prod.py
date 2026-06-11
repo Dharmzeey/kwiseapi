@@ -64,7 +64,8 @@ MEDIA_URL = f"https://{AWS_S3_ENDPOINT_URL}/{AWS_LOCATION}/"
 
 # AWS_S3_CUSTOM_DOMAIN = "media.kwiseworld.com"
 
-STATIC_URL = "/static/"
+STATIC_URL = '/static/'
+STATIC_ROOT = '/var/www/html/staticfiles'
 
 # ── Logging ───────────────────────────────────────────────────────────────────
 # LOGGING = {
