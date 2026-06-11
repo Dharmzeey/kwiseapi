@@ -115,14 +115,10 @@ class CategorySeriesView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, slug):
-        series = (
-            Product.objects
-            .filter(category__slug=slug)
-            .exclude(series="")
-            .values_list("series", flat=True)
-            .distinct()
-            .order_by("series")
-        )
+        qs = Product.objects.filter(category__slug=slug).exclude(series="")
+        if brand := request.query_params.get("brand"):
+            qs = qs.filter(brand__slug=brand)
+        series = qs.values_list("series", flat=True).distinct().order_by("series")
         return Response(list(series))
 
 

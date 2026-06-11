@@ -53,6 +53,13 @@ STORAGES = {
     },
 }
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': os.getenv('REDIS_URL', ''),
+    }
+}
+
 AWS_ACCESS_KEY_ID = os.environ.get('B2_APPLICATION_KEY_ID')
 AWS_SECRET_ACCESS_KEY = os.environ.get('B2_APPLICATION_KEY')
 AWS_STORAGE_BUCKET_NAME = os.getenv('B2_BUCKET_NAME')
