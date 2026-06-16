@@ -66,6 +66,8 @@ AWS_STORAGE_BUCKET_NAME = os.getenv('B2_BUCKET_NAME')
 AWS_S3_REGION_NAME = os.getenv('B2_REALM', 'eu-central-003')
 AWS_S3_ENDPOINT_URL = f'https://s3.{AWS_S3_REGION_NAME}.backblazeb2.com'
 
+
+AWS_S3_CUSTOM_DOMAIN = "media.kwiseworld.com"
 AWS_LOCATION = "media"
 MEDIA_URL = f"https://{AWS_S3_ENDPOINT_URL}/{AWS_LOCATION}/"
 
