@@ -79,7 +79,7 @@ class StorageVariant(models.Model):
 
     class Meta:
         unique_together = ("model", "capacity")
-        ordering = ["model__order", "capacity"]
+        ordering = ["model__name", "capacity"]
 
     def __str__(self):
         return f"{self.model.name} · {self.capacity}"
