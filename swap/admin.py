@@ -57,7 +57,7 @@ class IphoneModelAdmin(admin.ModelAdmin):
 
 @admin.register(StorageVariant)
 class StorageVariantAdmin(admin.ModelAdmin):
-    list_display = ("model", "capacity", "uk_reseller_price_ngn", "uk_end_user_price_ngn", "swap_in_value_ngn", "ng_end_user_price_ngn", "is_active")
+    list_display = ("model", "capacity", "uk_reseller_price_ngn", "uk_end_user_price_ngn", "swap_in_value_ngn", "ng_end_user_price_ngn", "is_active", "updated_at")
     list_filter = ("model__series", "capacity", "is_active")
     list_editable = ("uk_reseller_price_ngn",)
     search_fields = ("model__name",)

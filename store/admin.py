@@ -21,8 +21,8 @@ class ProductSpecInline(admin.TabularInline):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ["name", "slug", "category", "brand", "price", "storage_variant", "status", "is_featured", "is_one_time", "stock"]
-    list_filter = ["category", "brand", "status", "is_featured", "is_one_time"]
+    list_display = ["name", "price", "storage_variant", "status", "is_featured", "is_one_time", "stock", "updated_at"]
+    list_filter = ["category", "brand", "status", "is_featured", "is_one_time", "updated_at"]
     search_fields = ["name", "slug"]
     inlines = [ProductSpecInline]
     readonly_fields = ["slug", "created_at", "updated_at"]
