@@ -21,9 +21,9 @@ class ProductSpecInline(admin.TabularInline):
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
-    list_display = ["name", "price", "storage_variant", "status", "is_featured", "is_one_time", "stock", "updated_at"]
-    list_filter = ["category", "brand", "status", "is_featured", "is_one_time", "updated_at"]
-    list_editable = ["price", "is_featured", "is_one_time", "stock", "status"]
+    list_display = ["name", "price", "storage_variant", "status", "is_visible", "is_featured", "is_one_time", "stock", "updated_at"]
+    list_filter = ["category", "brand", "status", "is_visible", "is_featured", "is_one_time", "updated_at"]
+    list_editable = ["price", "is_visible", "is_featured", "is_one_time", "stock", "status"]
     search_fields = ["name", "slug"]
     inlines = [ProductSpecInline]
     readonly_fields = ["slug", "created_at", "updated_at"]
@@ -31,7 +31,7 @@ class ProductAdmin(admin.ModelAdmin):
         ("Identity", {"fields": ["name", "slug", "category", "brand"]}),
         ("Image", {"fields": ["image", "thumb", "tint"]}),
         ("Pricing", {"fields": ["storage_variant", "price", "old_price"]}),
-        ("Details", {"fields": ["status", "badge", "is_featured", "is_one_time", "stock", "colors"]}),
+        ("Details", {"fields": ["status", "badge", "is_visible", "is_featured", "is_one_time", "stock", "colors"]}),
         ("Content", {"fields": ["description", "one_time_note"]}),
         ("Meta", {"fields": ["rating", "review_count", "created_at", "updated_at"]}),
     ]

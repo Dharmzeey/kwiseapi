@@ -94,6 +94,7 @@ class Product(models.Model):
     review_count = models.PositiveIntegerField(default=0)
 
     # Flags
+    is_visible = models.BooleanField(default=False, help_text="Hidden products won't appear on the store even if in stock.")
     is_featured = models.BooleanField(default=False)
     badge = models.CharField(max_length=50, blank=True)
     is_one_time = models.BooleanField(default=False)

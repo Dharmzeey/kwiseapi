@@ -77,7 +77,7 @@ class ProductListView(ListAPIView):
     permission_classes = [AllowAny]
 
     def get_queryset(self):
-        qs = Product.objects.select_related("category", "brand")
+        qs = Product.objects.select_related("category", "brand").filter(is_visible=True)
         p = self.request.query_params
 
         if category := p.get("category"):
@@ -115,7 +115,7 @@ class CategorySeriesView(APIView):
     permission_classes = [AllowAny]
 
     def get(self, request, slug):
-        qs = Product.objects.filter(category__slug=slug).exclude(series="")
+        qs = Product.objects.filter(category__slug=slug, is_visible=True).exclude(series="")
         if brand := request.query_params.get("brand"):
             qs = qs.filter(brand__slug=brand)
         series = qs.values_list("series", flat=True).distinct().order_by("series")
@@ -124,7 +124,7 @@ class CategorySeriesView(APIView):
 
 class ProductDetailView(RetrieveAPIView):
     """GET /api/products/<id>/"""
-    queryset = Product.objects.select_related("category", "brand").prefetch_related("specs", "reviews")
+    queryset = Product.objects.select_related("category", "brand").prefetch_related("specs", "reviews").filter(is_visible=True)
     serializer_class = ProductDetailSerializer
     permission_classes = [AllowAny]
     lookup_field = "slug"
@@ -145,7 +145,7 @@ class ProductRelatedView(ListAPIView):
             return Product.objects.none()
         return (
             Product.objects
-            .filter(category=product.category, is_one_time=False)
+            .filter(category=product.category, is_one_time=False, is_visible=True)
             .exclude(slug=slug)
             .order_by("-is_featured", "name")[:4]
         )
