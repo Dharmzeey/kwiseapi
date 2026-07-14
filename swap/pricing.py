@@ -21,8 +21,8 @@ def _eu_markup(uk_reseller: int) -> int:
     ≤ 200 000           → +50 000 flat
     200 001 – 300 000   → +25 000 flat   (budget range, tight margin)
     300 001 – 700 000   → +50 000 flat
-    700 001 – 1 000 000 → +80 000 flat
-    > 1 000 000         → 80k + 5 % of excess  (≈ +130k at 2 M)
+    700 001 – 1 000 000 → +70 000 flat
+    > 1 000 000         → 70k + 5 % of excess  (≈ +130k at 2 M)
     """
     if uk_reseller <= 200_000:
         return 30_000
@@ -31,8 +31,8 @@ def _eu_markup(uk_reseller: int) -> int:
     if uk_reseller <= 700_000:
         return 50_000
     if uk_reseller <= 1_000_000:
-        return 80_000
-    return r5k(80_000 + 0.05 * (uk_reseller - 1_000_000))
+        return 70_000
+    return r5k(70_000 + 0.05 * (uk_reseller - 1_000_000))
 
 
 # ── Swap-in devaluation (fixed per model) ─────────────────────────────────────
@@ -54,14 +54,14 @@ _DEVALUATION: dict = {
     "iphone-13-mini":    160_000,
     "iphone-13":         170_000,
     "iphone-13-pro":     190_000,
-    "iphone-13-pro-max": 200_000,
+    "iphone-13-pro-max": 210_000,
     # 14 series
     "iphone-14":         170_000,
     "iphone-14-plus":    170_000,
     "iphone-14-pro":     180_000,
     "iphone-14-pro-max": 200_000,
     # 15 series
-    "iphone-15":         180_000,
+    "iphone-15":         170_000,
     "iphone-15-plus":    190_000,
     "iphone-15-pro":     210_000,
     "iphone-15-pro-max": 220_000,
