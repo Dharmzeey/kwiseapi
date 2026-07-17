@@ -38,43 +38,43 @@ def _eu_markup(uk_reseller: int) -> int:
 # ── Swap-in devaluation (fixed per model) ─────────────────────────────────────
 _DEVALUATION: dict = {
     # XR
-    "iphone-xr":          60_000,
-    'iphone-xs':          80_000,
+    "iphone-xr":          50_000,
+    'iphone-xs':          60_000,
     'iphone-xs-max':     100_000,
     # 11 series
-    "iphone-11":          70_000,
-    "iphone-11-pro":     90_000,
-    "iphone-11-pro-max": 130_000,
+    "iphone-11":          50_000,
+    "iphone-11-pro":     70_000,
+    "iphone-11-pro-max": 100_000,
     # 12 series
-    "iphone-12-mini":    110_000,
-    "iphone-12":         120_000,
-    "iphone-12-pro":     170_000,
-    "iphone-12-pro-max": 180_000,
+    "iphone-12-mini":    150_000,
+    "iphone-12":         80_000,
+    "iphone-12-pro":     110_000,
+    "iphone-12-pro-max": 140_000,
     # 13 series
-    "iphone-13-mini":    160_000,
-    "iphone-13":         170_000,
-    "iphone-13-pro":     190_000,
-    "iphone-13-pro-max": 210_000,
+    "iphone-13-mini":    150_000,
+    "iphone-13":         100_000,
+    "iphone-13-pro":     100_000,
+    "iphone-13-pro-max": 250_000,
     # 14 series
-    "iphone-14":         170_000,
-    "iphone-14-plus":    170_000,
-    "iphone-14-pro":     180_000,
-    "iphone-14-pro-max": 200_000,
+    "iphone-14":         120_000,
+    "iphone-14-plus":    150_000,
+    "iphone-14-pro":     150_000,
+    "iphone-14-pro-max": 150_000,
     # 15 series
-    "iphone-15":         170_000,
-    "iphone-15-plus":    190_000,
-    "iphone-15-pro":     210_000,
-    "iphone-15-pro-max": 220_000,
+    "iphone-15":         130_000,
+    "iphone-15-plus":    160_000,
+    "iphone-15-pro":     180_000,
+    "iphone-15-pro-max": 200_000,
     # 16 series
-    "iphone-16":         150_000,
-    "iphone-16-plus":    150_000,
-    "iphone-16-pro":     210_000,
-    "iphone-16-pro-max": 220_000,
+    "iphone-16":         140_000,
+    "iphone-16-plus":    160_000,
+    "iphone-16-pro":     180_000,
+    "iphone-16-pro-max": 200_000,
     # 17 series (update once swap-in market stabilises)
-    "iphone-17":         200_000,
+    "iphone-17":         120_000,
     "iphone-17-air":     230_000,
-    "iphone-17-pro":     240_000,
-    "iphone-17-pro-max": 250_000,
+    "iphone-17-pro":     150_000,
+    "iphone-17-pro-max": 150_000,
 }
 
 
