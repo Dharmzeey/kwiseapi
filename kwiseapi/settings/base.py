@@ -34,6 +34,7 @@ INSTALLED_APPS = [
     "users.apps.UsersConfig",
     "store.apps.StoreConfig",
     "swap.apps.SwapConfig",
+    "content.apps.ContentConfig",
 ]
 
 MIDDLEWARE = [
@@ -116,3 +117,16 @@ SWAP_SERVICE_FEE_NGN = 10_000
 PAYSTACK_SECRET_KEY = os.environ.get("PAYSTACK_SECRET_KEY")
 PAYSTACK_BASE_URL = "https://api.paystack.co"
 FRONTEND_BASE_URL = os.environ.get("FRONTEND_BASE_URL", "http://localhost:3000")
+
+# ── Content revalidation webhook ─────────────────────────────────────────────
+# Next.js ISR on-demand revalidation. Set both in .env:
+#   REVALIDATION_SECRET=<random-string>   (shared with Next.js REVALIDATION_SECRET env var)
+#   REVALIDATION_URL=https://kwiseworld.com/api/revalidate
+REVALIDATION_SECRET = os.environ.get("REVALIDATION_SECRET", "")
+REVALIDATION_URL = os.environ.get("REVALIDATION_URL", "")
+
+# ── IndexNow ─────────────────────────────────────────────────────────────────
+# Get your key from Bing Webmaster Tools → IndexNow, then:
+#   1. Set INDEXNOW_KEY=<key> in .env
+#   2. Place public/<key>.txt in the Next.js app (content = the key string)
+INDEXNOW_KEY = os.environ.get("INDEXNOW_KEY", "")
