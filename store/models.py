@@ -103,6 +103,10 @@ class Product(models.Model):
     # Content
     description = models.TextField()
     one_time_note = models.TextField(blank=True)
+    video_url = models.URLField(
+        max_length=500, blank=True,
+        help_text="Link to a video of this exact unit — e.g. a post on X, Instagram, or TikTok.",
+    )
 
     colors = models.JSONField(default=list, blank=True)
 

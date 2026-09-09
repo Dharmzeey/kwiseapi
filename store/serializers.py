@@ -110,7 +110,7 @@ class ProductDetailSerializer(serializers.ModelSerializer):
             "status", "rating", "review_count",
             "is_featured", "badge",
             "is_one_time", "stock", "sold_out",
-            "description", "one_time_note",
+            "description", "one_time_note", "video_url",
             "colors", "specs", "reviews",
             "created_at",
         ]
@@ -286,7 +286,7 @@ class ProductWriteSerializer(serializers.ModelSerializer):
             "price", "old_price",
             "status", "is_visible", "is_featured", "badge",
             "is_one_time", "stock",
-            "description", "one_time_note",
+            "description", "one_time_note", "video_url",
             "colors",
         ]
 
@@ -310,7 +310,7 @@ class AdminProductSerializer(serializers.ModelSerializer):
             "status", "rating", "review_count",
             "is_visible", "is_featured", "badge",
             "is_one_time", "stock", "sold_out",
-            "description", "one_time_note",
+            "description", "one_time_note", "video_url",
             "colors", "specs",
             "created_at", "updated_at",
         ]
