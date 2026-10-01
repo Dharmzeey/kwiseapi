@@ -70,7 +70,7 @@ class ProductListView(ListAPIView):
       status    – condition      e.g. ?status=Foreign Used
       q         – search text    e.g. ?q=iphone+15
       one_time  – 1 / 0
-      sort      – featured | low | high | rating
+      sort      – featured | newest | low | high | rating
       max_price – upper bound in Naira
     """
     serializer_class = ProductListSerializer
@@ -106,6 +106,7 @@ class ProductListView(ListAPIView):
         order_map = {
             "low": ["price"],
             "high": ["-price"],
+            "newest": ["-created_at"],
         }
         return qs.order_by(*order_map.get(sort, ["-is_featured", "name"]))
 
